@@ -58,7 +58,7 @@ public class GestorBancario : MonoBehaviour
 
     private void GenerarMesadaInicial()
     {
-        int multiplicador = Random.Range(8, 13);
+        int multiplicador = Random.Range(8,13);
         int montoMesada = multiplicador * 10000;
 
         Transaccion nuevaMesada = new Transaccion
