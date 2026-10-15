@@ -17,16 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TUTORIAL.unity
     guid: 9004a482a82c3884ab83828862253ef6
-  - enabled: 0
-    path: Assets/Scenes/TUTORIAL DECISIONES.unity
-    guid: e5127eca3e25e34458defbe972422c32
-  - enabled: 0
-    path: Assets/Scenes/TUTORIAL CONSECUENCIAS.unity
-    guid: ba85914db53300146aee0c04c548ca00
-  - enabled: 0
-    path: Assets/Scenes/TUTORIAL EVENTOS IMPREVISTOS.unity
-    guid: ffd9ddaa86e87ac4f806fcf1b943da10
-  - enabled: 0
-    path: Assets/Scenes/TUTORIAL BANCO.unity
-    guid: 7a64318d2c0fcf84e86665864dc08a1e
+  - enabled: 1
+    path: Assets/Scenes/dias/PrimeraDecisionDomingo.unity
+    guid: 6164e41433977404d89891c3a9f98cbb
+  - enabled: 1
+    path: Assets/Scenes/dias/Lunes.unity
+    guid: 306ba5efc1c73e24fb0288310eb83b32
   m_configObjects: {}
