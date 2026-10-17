@@ -586,7 +586,7 @@ MonoBehaviour:
   panelApagar: {fileID: 615329392}
   panelPrender: {fileID: 2096766732}
   velocidad: 0.5
-  nombreEscenaNueva: menu
+  nombreEscenaNueva: GM1.1.4
 --- !u!4 &573295321
 Transform:
   m_ObjectHideFlags: 0
