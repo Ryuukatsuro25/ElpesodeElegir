@@ -5,19 +5,22 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/menu.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/menu 1.unity
     guid: a1d7a89e885908f4db2e360471bf2915
   - enabled: 1
+    path: Assets/Scenes/OPCIONES.unity
+    guid: 46a996c1fb9f9704d87cb634a6434399
+  - enabled: 1
     path: Assets/Scenes/TUTORIAL.unity
     guid: 9004a482a82c3884ab83828862253ef6
   - enabled: 1
-    path: Assets/Scenes/TUTORIAL DECISIONES.unity
-    guid: e5127eca3e25e34458defbe972422c32
+    path: Assets/Scenes/dias/PrimeraDecisionDomingo.unity
+    guid: 6164e41433977404d89891c3a9f98cbb
   - enabled: 1
-    path: Assets/Scenes/TUTORIAL EVENTOS IMPREVISTOS.unity
-    guid: ffd9ddaa86e87ac4f806fcf1b943da10
+    path: Assets/Scenes/dias/Lunes.unity
+    guid: 306ba5efc1c73e24fb0288310eb83b32
   m_configObjects: {}
