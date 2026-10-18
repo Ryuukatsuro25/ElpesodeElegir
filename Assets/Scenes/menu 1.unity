@@ -1857,7 +1857,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nombreDeLaEscena: GM1.1.4
+  nombreDeLaEscena: HU-TUT7.1.4
 --- !u!4 &1852083009
 Transform:
   m_ObjectHideFlags: 0
