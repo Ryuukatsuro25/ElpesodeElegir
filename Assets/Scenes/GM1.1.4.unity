@@ -947,7 +947,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nombreDeLaEscena: 
+  nombreDeLaEscena: HU-DOM9.1.4 1
 --- !u!1 &756028859
 GameObject:
   m_ObjectHideFlags: 0
