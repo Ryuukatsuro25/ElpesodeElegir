@@ -21,6 +21,30 @@ EditorBuildSettings:
     path: Assets/Scenes/dias/PrimeraDecisionDomingo.unity
     guid: 6164e41433977404d89891c3a9f98cbb
   - enabled: 1
+    path: Assets/Scenes/HU-DOM9.1.5.unity
+    guid: d94f9591ae4367047bf382668bde64f1
+  - enabled: 1
+    path: Assets/Scenes/GM1.1.1.unity
+    guid: 9ffb6b0b5f7302942bc4e76a2d64312e
+  - enabled: 1
+    path: Assets/Scenes/GM1.1.2.unity
+    guid: 39c9b01ef94f3bd41ad4e672fd4daeaf
+  - enabled: 1
+    path: Assets/Scenes/GM1.1.4.unity
+    guid: 7ea5fa3cf5ab9714c85b27130f80dadf
+  - enabled: 1
     path: Assets/Scenes/dias/Lunes.unity
     guid: 306ba5efc1c73e24fb0288310eb83b32
+  - enabled: 1
+    path: Assets/Scenes/HU-DOM9.1.4.unity
+    guid: 2c11e24a03df4f640ac5a7bdf197cbdb
+  - enabled: 1
+    path: Assets/Scenes/Medallas.unity
+    guid: 2193085fedae80c459f0f945c68e7f62
+  - enabled: 1
+    path: Assets/Scenes/HU-DOM9.1.4 1.unity
+    guid: 15eee7a6c5820534da525c277ec29ddd
+  - enabled: 1
+    path: Assets/Scenes/acomodado/HU-TUT7.1.4.unity
+    guid: b99a67bb9c937ee478b8ec700ba3463f
   m_configObjects: {}
