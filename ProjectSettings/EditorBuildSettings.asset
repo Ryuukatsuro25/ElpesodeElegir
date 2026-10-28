@@ -32,4 +32,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/dias/jueves.unity
     guid: 3d050d928a23de9448c8ae11b798bd28
+  - enabled: 1
+    path: Assets/Scenes/dias/viernes.unity
+    guid: 19f156a2e02ef474296438df2acdd4ab
   m_configObjects: {}
