@@ -23,4 +23,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/dias/Lunes.unity
     guid: 306ba5efc1c73e24fb0288310eb83b32
+  - enabled: 1
+    path: Assets/Scenes/dias/Martes.unity
+    guid: 1414314601d6a20419491e42d948fa9b
   m_configObjects: {}
