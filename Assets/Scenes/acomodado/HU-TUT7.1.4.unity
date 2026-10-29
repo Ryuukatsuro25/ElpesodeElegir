@@ -369,6 +369,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3292546203912548473, guid: e6905184e2dd9a245aeca382c09f61fa, type: 3}
+      propertyPath: nombreEscenaNueva
+      value: HU-DOM9.1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5527629290913698359, guid: e6905184e2dd9a245aeca382c09f61fa, type: 3}
       propertyPath: m_Name
       value: 7.14tut
