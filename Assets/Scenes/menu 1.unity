@@ -1996,7 +1996,10 @@ GameObject:
   m_Component:
   - component: {fileID: 2036825304}
   - component: {fileID: 2036825303}
+<<<<<<< Updated upstream
   - component: {fileID: 2036825305}
+=======
+>>>>>>> Stashed changes
   m_Layer: 0
   m_Name: Gamemanager
   m_TagString: Untagged
@@ -2031,6 +2034,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< Updated upstream
 --- !u!114 &2036825305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2044,10 +2048,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nombreDeLaEscena: HU-TUT7.1.4
+=======
+>>>>>>> Stashed changes
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 128590658}
   - {fileID: 1033978636}
+<<<<<<< Updated upstream
   - {fileID: 2036825304}
+=======
+<<<<<<< HEAD
+  - {fileID: 1852083009}
+=======
+  - {fileID: 2036825304}
+>>>>>>> pre-main
+>>>>>>> Stashed changes
