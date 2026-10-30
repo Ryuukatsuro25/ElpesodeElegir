@@ -36,18 +36,6 @@ EditorBuildSettings:
     path: Assets/Scenes/dias/Lunes.unity
     guid: 306ba5efc1c73e24fb0288310eb83b32
   - enabled: 1
-    path: Assets/Scenes/dias/Martes.unity
-    guid: 1414314601d6a20419491e42d948fa9b
-  - enabled: 1
-    path: Assets/Scenes/dias/Miercoles.unity
-    guid: 128d5a6fbfe5deb459f295094efb8860
-  - enabled: 1
-    path: Assets/Scenes/dias/jueves.unity
-    guid: 3d050d928a23de9448c8ae11b798bd28
-  - enabled: 1
-    path: Assets/Scenes/dias/viernes.unity
-    guid: 19f156a2e02ef474296438df2acdd4ab
-  - enabled: 1
     path: Assets/Scenes/HU-DOM9.1.4.unity
     guid: 2c11e24a03df4f640ac5a7bdf197cbdb
   - enabled: 1
