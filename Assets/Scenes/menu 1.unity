@@ -2011,18 +2011,15 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1984728071}
   m_CullTransparentMesh: 1
-<<<<<<< HEAD
-<<<<<<< HEAD
---- !u!114 &2036825303 stripped
-=======
-=======
->>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
---- !u!1 &2036825302
+ 
+!u!114 &2036825303 stripped
+
+!u!1 &2036825302
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-<<<<<<< HEAD
+
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
@@ -2048,6 +2045,7 @@ MonoBehaviour:
   m_Component:
   - component: {fileID: 2036825304}
   - component: {fileID: 2036825303}
+  - component: {fileID: 2036825305}
   m_Layer: 0
   m_Name: Gamemanager
   m_TagString: Untagged
@@ -2140,43 +2138,10 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< HEAD
---- !u!114 &2036825305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2036825302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nombreDeLaEscena: HU-TUT7.1.4
->>>>>>> parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
-=======
->>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 128590658}
   - {fileID: 1033978636}
-<<<<<<< HEAD
-<<<<<<< HEAD
-  - {fileID: 9051507710062886384}
-=======
-<<<<<<< Updated upstream
   - {fileID: 2036825304}
-=======
-<<<<<<< HEAD
-  - {fileID: 1852083009}
-=======
-  - {fileID: 2036825304}
->>>>>>> pre-main
->>>>>>> Stashed changes
->>>>>>> parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
-=======
-  - {fileID: 2036825304}
->>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
