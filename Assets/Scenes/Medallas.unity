@@ -1457,7 +1457,6 @@ MonoBehaviour:
     imagenBlancoYNegro: {fileID: 0}
   - id: maestro_ahorrador
     imagenBlancoYNegro: {fileID: 0}
-  notificacionMedalla: {fileID: 354296116}
 --- !u!1 &1577556182
 GameObject:
   m_ObjectHideFlags: 0

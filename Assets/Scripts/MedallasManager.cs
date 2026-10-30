@@ -13,9 +13,6 @@ public class MedallasManager : MonoBehaviour
     [Header("Medallas de la sala")]
     public Medalla[] medallas;
 
-    [Header("Notificaciones de recompensa")]
-    public NotificacionMedalla notificacionMedalla;
-
     private void Start()
     {
         ActualizarSala();
@@ -29,30 +26,12 @@ public class MedallasManager : MonoBehaviour
             return;
         }
 
-        bool yaEstabaDesbloqueada = EstaDesbloqueada(id);
-
         PlayerPrefs.SetInt("Medalla_" + id, 1);
         PlayerPrefs.Save();
 
         ActualizarSala();
 
         Debug.Log("Medalla desbloqueada: " + id);
-
-        // Mostrar la notificación solamente la primera vez
-        // que se desbloquea esta medalla.
-        if (!yaEstabaDesbloqueada)
-        {
-            if (notificacionMedalla != null)
-            {
-                notificacionMedalla.MostrarNotificacion(id);
-            }
-            else
-            {
-                Debug.LogWarning(
-                    "No hay un componente NotificacionMedalla asignado."
-                );
-            }
-        }
     }
 
     public bool EstaDesbloqueada(string id)
@@ -64,9 +43,7 @@ public class MedallasManager : MonoBehaviour
     {
         if (medallas == null)
         {
-            Debug.LogWarning(
-                "No se ha configurado el arreglo de medallas."
-            );
+            Debug.LogWarning("No se ha configurado el arreglo de medallas.");
             return;
         }
 
