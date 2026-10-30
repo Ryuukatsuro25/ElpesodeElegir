@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,6 +24,19 @@ public class GestorPanelesLunes : MonoBehaviour
     [SerializeField] private GameObject decisionAlmuerzoBarato;
     [SerializeField] private GameObject panelBancoAlmuerzoBarato;
     [SerializeField] private GameObject panelSegundoAlmuerzoBarato;
+
+    [Header("Convergencia de almuerzos")]
+    [SerializeField] private GameObject panelConvergenciaAlmuerzo;
+
+    [Header("Decision de camisa")]
+    [SerializeField] private GameObject decisionComprarCamisa;
+    [SerializeField] private GameObject panelDecisionCamisa;
+    [SerializeField] private GameObject panelResultadoComprarCamisa;
+    [SerializeField] private GameObject panelResultadoNoComprarCamisa;
+
+    [Header("Paneles bancarios de camisa")]
+    [SerializeField] private GameObject panelBancoComprarCamisa;
+    [SerializeField] private GameObject panelBancoNoComprarCamisa;
 
     [Header("Tercer almuerzo")]
     [SerializeField] private GameObject decisionAlmuerzoCostoso;
@@ -59,7 +73,6 @@ public class GestorPanelesLunes : MonoBehaviour
         panelDestino.SetActive(true);
         panelActual = panelDestino;
 
-        // Ocultar el boton de la mision al entrar a introduccion.
         if (panelDestino == introduccion && botonSiguienteMision != null)
         {
             botonSiguienteMision.SetActive(false);
@@ -82,6 +95,13 @@ public class GestorPanelesLunes : MonoBehaviour
             decisionAlmuerzoBarato,
             panelBancoAlmuerzoBarato,
             panelSegundoAlmuerzoBarato,
+            panelConvergenciaAlmuerzo,
+            decisionComprarCamisa,
+            panelDecisionCamisa,
+            panelResultadoComprarCamisa,
+            panelResultadoNoComprarCamisa,
+            panelBancoComprarCamisa,
+            panelBancoNoComprarCamisa,
             decisionAlmuerzoCostoso,
             panelBancoAlmuerzoCostoso,
             panelSegundoAlmuerzoCostoso,
@@ -163,6 +183,47 @@ public class GestorPanelesLunes : MonoBehaviour
         MostrarPanel(panelSegundoAlmuerzoBarato);
     }
 
+    // CONVERGENCIA DE ALMUERZOS
+
+    public void IrAConvergenciaAlmuerzo()
+    {
+        MostrarPanel(panelConvergenciaAlmuerzo);
+    }
+
+    // DECISION DE CAMISA
+
+    public void IrADecisionComprarCamisa()
+    {
+        MostrarPanel(decisionComprarCamisa);
+    }
+
+    public void IrAPanelDecisionCamisa()
+    {
+        MostrarPanel(panelDecisionCamisa);
+    }
+
+    public void IrAPanelResultadoComprarCamisa()
+    {
+        MostrarPanel(panelResultadoComprarCamisa);
+    }
+
+    public void IrAPanelResultadoNoComprarCamisa()
+    {
+        MostrarPanel(panelResultadoNoComprarCamisa);
+    }
+
+    // PANELES BANCARIOS DE CAMISA
+
+    public void IrAPanelBancoComprarCamisa()
+    {
+        MostrarPanel(panelBancoComprarCamisa);
+    }
+
+    public void IrAPanelBancoNoComprarCamisa()
+    {
+        MostrarPanel(panelBancoNoComprarCamisa);
+    }
+
     // ALMUERZO COSTOSO
 
     public void IrADecisionAlmuerzoCostoso()
@@ -197,7 +258,7 @@ public class GestorPanelesLunes : MonoBehaviour
         MostrarPanel(panelInicial);
     }
 
-    // CARGAR OTRA ESCENA, SI ES NECESARIO
+    // CARGAR OTRA ESCENA
 
     public void IrAEscena(string nombreEscena)
     {
