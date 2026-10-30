@@ -564,7 +564,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2036825303}
+      - m_Target: {fileID: 1647706232}
         m_TargetAssemblyTypeName: CambioDeEscena, Assembly-CSharp
         m_MethodName: CargarEscena
         m_Mode: 5
@@ -1458,16 +1458,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2036825305}
-        m_TargetAssemblyTypeName: CambiadorEscenas, Assembly-CSharp
-        m_MethodName: Cambiar
-        m_Mode: 1
+      - m_Target: {fileID: 2036825303}
+        m_TargetAssemblyTypeName: CambioDeEscena, Assembly-CSharp
+        m_MethodName: CargarEscena
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: PrimeraDecisionDomingo
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1427191528
@@ -1753,6 +1753,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1647706231}
+  - component: {fileID: 1647706232}
   m_Layer: 0
   m_Name: botones
   m_TagString: Untagged
@@ -1779,6 +1780,18 @@ Transform:
   - {fileID: 560985614}
   m_Father: {fileID: 1033978636}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1647706232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647706230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b76604117dc7d45a5a3f47f94cbcc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1824627257
 GameObject:
   m_ObjectHideFlags: 0
@@ -1999,13 +2012,17 @@ CanvasRenderer:
   m_GameObject: {fileID: 1984728071}
   m_CullTransparentMesh: 1
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!114 &2036825303 stripped
 =======
+=======
+>>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
 --- !u!1 &2036825302
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
+<<<<<<< HEAD
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
@@ -2024,28 +2041,41 @@ GameObject:
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2254900638108499728, guid: 09566c45398fdb04f8551dac5d0bf138, type: 3}
   m_PrefabInstance: {fileID: 9051507710062886384}
+=======
+>>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2036825304}
+  - component: {fileID: 2036825303}
+  m_Layer: 0
+  m_Name: Gamemanager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2036825303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036825302}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4b76604117dc7d45a5a3f47f94cbcc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &2036825305 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5127646485894352683, guid: 09566c45398fdb04f8551dac5d0bf138, type: 3}
-  m_PrefabInstance: {fileID: 9051507710062886384}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1001 &9051507710062886384
-PrefabInstance:
+--- !u!4 &2036825304
+Transform:
   m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2036825302}
   serializedVersion: 2
+<<<<<<< HEAD
 <<<<<<< HEAD
   m_Modification:
     serializedVersion: 3
@@ -2101,6 +2131,8 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 09566c45398fdb04f8551dac5d0bf138, type: 3}
 =======
+=======
+>>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 502.72015, y: 907.53656, z: -4.329497}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -2108,6 +2140,7 @@ PrefabInstance:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
 --- !u!114 &2036825305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2122,12 +2155,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nombreDeLaEscena: HU-TUT7.1.4
 >>>>>>> parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
+=======
+>>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 128590658}
   - {fileID: 1033978636}
+<<<<<<< HEAD
 <<<<<<< HEAD
   - {fileID: 9051507710062886384}
 =======
@@ -2141,3 +2177,6 @@ SceneRoots:
 >>>>>>> pre-main
 >>>>>>> Stashed changes
 >>>>>>> parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
+=======
+  - {fileID: 2036825304}
+>>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
