@@ -21,6 +21,10 @@ public class GestorPanelesViernes : MonoBehaviour
     [SerializeField] private GameObject panelInicial;
     [SerializeField] private GameObject botonSiguienteMision;
 
+    [Header("Sistema de bienestar del viernes")]
+    [SerializeField]
+    private BienestarDecisionesViernes bienestarViernes;
+
     private GameObject panelActual;
 
     private void Start()
@@ -94,6 +98,11 @@ public class GestorPanelesViernes : MonoBehaviour
     public void IrAPanelDecision()
     {
         MostrarPanel(panelDecision);
+
+        if (bienestarViernes != null)
+      {
+        bienestarViernes.PrepararDecision();
+      }
     }
 
     // DECISION: NO HACER LA TAREA
