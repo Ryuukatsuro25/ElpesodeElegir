@@ -2033,13 +2033,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2036825303
->>>>>>> parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
+!u!114 &2036825303
+ parent of c63c113 (Revert "Merge remote-tracking branch 'origin/JuanJoseOsorio' into Rios")
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2254900638108499728, guid: 09566c45398fdb04f8551dac5d0bf138, type: 3}
   m_PrefabInstance: {fileID: 9051507710062886384}
-=======
->>>>>>> parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
+parent of cd73e56 (Revert "Merge branch 'pre-main' into Rios")
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
