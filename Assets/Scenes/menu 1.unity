@@ -443,7 +443,7 @@ MonoBehaviour:
           m_StringArgument: TUTORIAL
           m_BoolArgument: 0
         m_CallState: 2
---- !u!114 &394265744
+ !u!114 &394265744
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
