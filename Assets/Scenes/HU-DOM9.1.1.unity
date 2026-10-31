@@ -1086,11 +1086,11 @@ MonoBehaviour:
   scrollHistorial: {fileID: 891760270}
   botonesDinero:
   - boton: {fileID: 42595644}
-    accion: 0
+    accion: 1
     monto: 5000
     descripcion: Compra camisa barata
   - boton: {fileID: 1847733883}
-    accion: 0
+    accion: 1
     monto: 50000
     descripcion: Compra camisa cara
 --- !u!114 &573295326
