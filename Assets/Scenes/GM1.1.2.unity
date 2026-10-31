@@ -961,7 +961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nombreDeLaEscena: Lunes
+  nombreDeLaEscena: PrimeraDecisionDomingo
 --- !u!1 &773502229
 GameObject:
   m_ObjectHideFlags: 0

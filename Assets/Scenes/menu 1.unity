@@ -563,7 +563,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 407086960}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1647706232}
+        m_TargetAssemblyTypeName: CambioDeEscena, Assembly-CSharp
+        m_MethodName: CargarEscena
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Medallas
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &407086960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1446,16 +1458,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2036825305}
-        m_TargetAssemblyTypeName: CambiadorEscenas, Assembly-CSharp
-        m_MethodName: Cambiar
-        m_Mode: 1
+      - m_Target: {fileID: 2036825303}
+        m_TargetAssemblyTypeName: CambioDeEscena, Assembly-CSharp
+        m_MethodName: CargarEscena
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: PrimeraDecisionDomingo
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1427191528
@@ -1741,6 +1753,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1647706231}
+  - component: {fileID: 1647706232}
   m_Layer: 0
   m_Name: botones
   m_TagString: Untagged
@@ -1767,6 +1780,18 @@ Transform:
   - {fileID: 560985614}
   m_Father: {fileID: 1033978636}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1647706232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647706230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4b76604117dc7d45a5a3f47f94cbcc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1824627257
 GameObject:
   m_ObjectHideFlags: 0
@@ -1996,10 +2021,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2036825304}
   - component: {fileID: 2036825303}
-<<<<<<< Updated upstream
-  - component: {fileID: 2036825305}
-=======
->>>>>>> Stashed changes
   m_Layer: 0
   m_Name: Gamemanager
   m_TagString: Untagged
@@ -2034,34 +2055,10 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-<<<<<<< Updated upstream
---- !u!114 &2036825305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2036825302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 646097abf25cc2a45a378563b85def31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nombreDeLaEscena: HU-TUT7.1.4
-=======
->>>>>>> Stashed changes
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 128590658}
   - {fileID: 1033978636}
-<<<<<<< Updated upstream
   - {fileID: 2036825304}
-=======
-<<<<<<< HEAD
-  - {fileID: 1852083009}
-=======
-  - {fileID: 2036825304}
->>>>>>> pre-main
->>>>>>> Stashed changes
