@@ -6,6 +6,15 @@ public class GestorPanelesMiercoles : MonoBehaviour
 {
     [Header("Paneles principales")]
     [SerializeField] private GameObject mision;
+
+    [Header("Nuevos paneles iniciales del miercoles")]
+    [SerializeField] private GameObject consejoMiercoles;
+    [SerializeField] private GameObject conversacionpadre;
+    [SerializeField] private GameObject conversacionpadre2;
+    [SerializeField] private GameObject preintroduccion;
+    [SerializeField] private GameObject retroalimentacionintro;
+
+    [Header("Paneles posteriores")]
     [SerializeField] private GameObject introduccion;
     [SerializeField] private GameObject segundoPanel;
     [SerializeField] private GameObject tercerPanel;
@@ -69,8 +78,8 @@ public class GestorPanelesMiercoles : MonoBehaviour
         panelDestino.SetActive(true);
         panelActual = panelDestino;
 
-        // Ocultar el botón de la misión al entrar a Introduccion.
-        if (panelDestino == introduccion && botonSiguienteMision != null)
+        if (panelDestino == consejoMiercoles &&
+            botonSiguienteMision != null)
         {
             botonSiguienteMision.SetActive(false);
         }
@@ -81,6 +90,14 @@ public class GestorPanelesMiercoles : MonoBehaviour
         GameObject[] paneles =
         {
             mision,
+
+            // Nuevos paneles iniciales
+            consejoMiercoles,
+            conversacionpadre,
+            conversacionpadre2,
+            preintroduccion,
+            retroalimentacionintro,
+
             introduccion,
             segundoPanel,
             tercerPanel,
@@ -124,6 +141,35 @@ public class GestorPanelesMiercoles : MonoBehaviour
     {
         MostrarPanel(mision);
     }
+
+    // NUEVOS PANELES INICIALES DEL MIERCOLES
+
+    public void IrAConsejoMiercoles()
+    {
+        MostrarPanel(consejoMiercoles);
+    }
+
+    public void IrAConversacionPadre()
+    {
+        MostrarPanel(conversacionpadre);
+    }
+
+    public void IrAConversacionPadre2()
+    {
+        MostrarPanel(conversacionpadre2);
+    }
+
+    public void IrAPreintroduccion()
+    {
+        MostrarPanel(preintroduccion);
+    }
+
+    public void IrARetroalimentacionIntro()
+    {
+        MostrarPanel(retroalimentacionintro);
+    }
+
+    // PANELES POSTERIORES
 
     public void IrAIntroduccion()
     {
