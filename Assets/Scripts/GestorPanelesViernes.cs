@@ -15,7 +15,10 @@ public class GestorPanelesViernes : MonoBehaviour
 
     [Header("Paneles de las decisiones")]
     [SerializeField] private GameObject segundoPanelNoHacerTarea;
+    [SerializeField] private GameObject tercerPanelNoHacerTarea;
+
     [SerializeField] private GameObject segundoPanelPedirCopia;
+    [SerializeField] private GameObject tercerPanelPedirCopia;
 
     [Header("Configuracion inicial")]
     [SerializeField] private GameObject panelInicial;
@@ -68,10 +71,15 @@ public class GestorPanelesViernes : MonoBehaviour
             mision,
             introduccion,
             panelDecision,
+
             decisionNoHacerTarea,
             decisionPedirCopia,
+
             segundoPanelNoHacerTarea,
-            segundoPanelPedirCopia
+            tercerPanelNoHacerTarea,
+
+            segundoPanelPedirCopia,
+            tercerPanelPedirCopia
         };
 
         foreach (GameObject panel in paneles)
@@ -100,9 +108,9 @@ public class GestorPanelesViernes : MonoBehaviour
         MostrarPanel(panelDecision);
 
         if (bienestarViernes != null)
-      {
-        bienestarViernes.PrepararDecision();
-      }
+        {
+            bienestarViernes.PrepararDecision();
+        }
     }
 
     // DECISION: NO HACER LA TAREA
@@ -117,6 +125,11 @@ public class GestorPanelesViernes : MonoBehaviour
         MostrarPanel(segundoPanelNoHacerTarea);
     }
 
+    public void IrATercerPanelNoHacerTarea()
+    {
+        MostrarPanel(tercerPanelNoHacerTarea);
+    }
+
     // DECISION: PEDIR COPIA
 
     public void IrADecisionPedirCopia()
@@ -127,6 +140,11 @@ public class GestorPanelesViernes : MonoBehaviour
     public void IrASegundoPanelPedirCopia()
     {
         MostrarPanel(segundoPanelPedirCopia);
+    }
+
+    public void IrATercerPanelPedirCopia()
+    {
+        MostrarPanel(tercerPanelPedirCopia);
     }
 
     // VOLVER AL PANEL INICIAL
