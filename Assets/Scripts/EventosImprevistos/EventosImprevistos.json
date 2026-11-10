@@ -16,21 +16,27 @@
       "opciones": [
         {
           "etiqueta": "Reparar",
-          "impacto": "-$30.000",
+          "impacto": "-$30.000 · -10 a -20 SANIDAD",
           "monto": -30000,
           "descripcionMovimiento": "Reparación del computador",
           "bienestar": 0,
+          "bienestarMinimo": -20,
+          "bienestarMaximo": -10,
           "medalla": "",
           "activaCobroDiferido": false,
-          "consecuencias": [ "Decidiste reparar tu laptop." ],
+          "consecuencias": [
+            "Decidiste reparar tu laptop."
+          ],
           "mensajePersonaje": "Me tocó sacar de mis ahorros, pero ya tengo mi laptop de vuelta."
         },
         {
           "etiqueta": "No Reparar",
-          "impacto": "Sin costo",
+          "impacto": "Sin costo · -10 a -20 SANIDAD",
           "monto": 0,
           "descripcionMovimiento": "",
           "bienestar": 0,
+          "bienestarMinimo": -20,
+          "bienestarMaximo": -10,
           "medalla": "",
           "activaCobroDiferido": false,
           "consecuencias": [
@@ -41,10 +47,12 @@
         },
         {
           "etiqueta": "Pedir prestado",
-          "impacto": "Sin costo hoy · luego -$40.000 y -50 de bienestar",
+          "impacto": "Hoy +10 a +20 SANIDAD · luego -$40.000 y -50 SANIDAD",
           "monto": 0,
           "descripcionMovimiento": "",
           "bienestar": 0,
+          "bienestarMinimo": 10,
+          "bienestarMaximo": 20,
           "medalla": "",
           "activaCobroDiferido": true,
           "consecuencias": [
@@ -71,6 +79,8 @@
           "monto": -15000,
           "descripcionMovimiento": "Vaca para el cumpleaños",
           "bienestar": 50,
+          "bienestarMinimo": 0,
+          "bienestarMaximo": 0,
           "medalla": "companerismo",
           "activaCobroDiferido": false,
           "consecuencias": [
@@ -85,20 +95,28 @@
           "monto": -30000,
           "descripcionMovimiento": "Regalo de cumpleaños",
           "bienestar": 100,
+          "bienestarMinimo": 0,
+          "bienestarMaximo": 0,
           "medalla": "",
           "activaCobroDiferido": false,
-          "consecuencias": [ "Le das un regalo al cumpleañero que le gusta mucho." ],
+          "consecuencias": [
+            "Le das un regalo al cumpleañero que le gusta mucho."
+          ],
           "mensajePersonaje": "Gasté bastante, pero verlo tan feliz con el regalo valió la pena."
         },
         {
           "etiqueta": "No dar nada",
-          "impacto": "Sin costo",
+          "impacto": "Sin costo · -10 a -20 SANIDAD",
           "monto": 0,
           "descripcionMovimiento": "",
-          "bienestar": -20,
+          "bienestar": 0,
+          "bienestarMinimo": -20,
+          "bienestarMaximo": -10,
           "medalla": "",
           "activaCobroDiferido": false,
-          "consecuencias": [ "Decidiste no dar nada." ],
+          "consecuencias": [
+            "Decidiste no dar nada."
+          ],
           "mensajePersonaje": ""
         }
       ]
@@ -115,6 +133,8 @@
           "monto": 15000,
           "descripcionMovimiento": "Bonificación por ayudar a la vecina",
           "bienestar": 0,
+          "bienestarMinimo": 10,
+          "bienestarMaximo": 20,
           "medalla": "buena_accion",
           "activaCobroDiferido": false,
           "consecuencias": [
@@ -127,7 +147,9 @@
           "impacto": "",
           "monto": 0,
           "descripcionMovimiento": "",
-          "bienestar": -20,
+          "bienestar": 0,
+          "bienestarMinimo": -20,
+          "bienestarMaximo": -10,
           "medalla": "",
           "activaCobroDiferido": false,
           "consecuencias": [
