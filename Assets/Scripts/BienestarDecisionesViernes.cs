@@ -15,19 +15,15 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     [Header("Indicador de bienestar")]
     [SerializeField] private Slider barraBienestar;
-
-    [SerializeField, Range(0f, 100f)]
-    private float bienestarInicial = 50f;
+    [SerializeField, Range(0f, 100f)] private float bienestarInicial = 50f;
 
     [Header("Consecuencias de las decisiones")]
     [SerializeField] private float perdidaPedirCopia = 15f;
     [SerializeField] private float perdidaEntregarIncompleta = 3f;
-
     [SerializeField] private float duracionAnimacion = 1.5f;
 
     [Header("Texto de retroalimentacion")]
     [SerializeField] private TMP_Text textoRetroalimentacion;
-
     [SerializeField] private float duracionTexto = 2f;
     [SerializeField] private float desplazamientoTexto = 40f;
 
@@ -48,7 +44,6 @@ public class BienestarDecisionesViernes : MonoBehaviour
     private bool decisionRegistrada = false;
     private bool estadoInicializado = false;
 
-    // Claves de guardado
     private const string CLAVE_BIENESTAR = "Viernes_Bienestar";
     private const string CLAVE_DECISION = "Viernes_Decision";
     private const string CLAVE_DECISION_REGISTRADA = "Viernes_DecisionRegistrada";
@@ -67,9 +62,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void InicializarNuevoProgreso()
     {
-        bienestarActual = Mathf.Clamp(
-            bienestarInicial, 0f, 100f
-        );
+        bienestarActual = Mathf.Clamp(bienestarInicial, 0f, 100f);
 
         decisionActual = TipoDecision.Ninguna;
         decisionRegistrada = false;
@@ -82,6 +75,8 @@ public class BienestarDecisionesViernes : MonoBehaviour
             textoRetroalimentacion.gameObject.SetActive(false);
 
         BloquearSiguiente();
+
+        GuardarProgreso();
     }
 
     // ==========================================
@@ -90,7 +85,13 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void PrepararDecision()
     {
-        decisionRegistrada = false;
+        // No borrar una decision que ya fue registrada.
+        if (decisionRegistrada)
+        {
+            DesbloquearSiguiente();
+            return;
+        }
+
         decisionActual = TipoDecision.Ninguna;
 
         BloquearSiguiente();
@@ -114,10 +115,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
             StopCoroutine(corrutinaDecision);
 
         corrutinaDecision = StartCoroutine(
-            AplicarDecisionYContinuar(
-                perdidaPedirCopia,
-                true
-            )
+            AplicarDecisionYContinuar(perdidaPedirCopia, true)
         );
     }
 
@@ -136,10 +134,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
             StopCoroutine(corrutinaDecision);
 
         corrutinaDecision = StartCoroutine(
-            AplicarDecisionYContinuar(
-                perdidaEntregarIncompleta,
-                false
-            )
+            AplicarDecisionYContinuar(perdidaEntregarIncompleta, false)
         );
     }
 
@@ -157,8 +152,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
             100f
         );
 
-        float puntosPerdidos =
-            bienestarAnterior - bienestarActual;
+        float puntosPerdidos = bienestarAnterior - bienestarActual;
 
         if (barraBienestar != null)
         {
@@ -203,12 +197,12 @@ public class BienestarDecisionesViernes : MonoBehaviour
                 tiempo / duracionAnimacion
             );
 
-            float suavizado = Mathf.SmoothStep(
-                0f, 1f, progreso
-            );
+            float suavizado = Mathf.SmoothStep(0f, 1f, progreso);
 
             barraBienestar.value = Mathf.Lerp(
-                valorInicial, valorFinal, suavizado
+                valorInicial,
+                valorFinal,
+                suavizado
             );
 
             yield return null;
@@ -232,12 +226,10 @@ public class BienestarDecisionesViernes : MonoBehaviour
         RectTransform rectTransform =
             textoRetroalimentacion.rectTransform;
 
-        Vector2 posicionInicial =
-            rectTransform.anchoredPosition;
+        Vector2 posicionInicial = rectTransform.anchoredPosition;
 
         Vector2 posicionFinal =
-            posicionInicial +
-            Vector2.up * desplazamientoTexto;
+            posicionInicial + Vector2.up * desplazamientoTexto;
 
         textoRetroalimentacion.alpha = 1f;
 
@@ -279,27 +271,26 @@ public class BienestarDecisionesViernes : MonoBehaviour
         bool pedirCopia
     )
     {
-        // Aplicar la perdida una sola vez
+        // Aplicar la consecuencia una sola vez.
         AplicarCambioBienestar(perdida);
 
-        // Esperar la animacion de la barra
+        // Guardar inmediatamente el resultado de la decision.
+        GuardarProgreso();
+
+        // Esperar la animacion de la barra.
         yield return new WaitForSeconds(duracionAnimacion);
 
-        // Esperar el texto flotante
+        // Esperar el texto flotante.
         if (textoRetroalimentacion != null)
             yield return new WaitForSeconds(duracionTexto);
 
-        // Cambiar al panel correspondiente
+        // Cambiar al panel correspondiente.
         if (gestorPaneles != null)
         {
             if (pedirCopia)
-            {
                 gestorPaneles.IrADecisionPedirCopia();
-            }
             else
-            {
                 gestorPaneles.IrADecisionNoHacerTarea();
-            }
         }
 
         corrutinaDecision = null;
@@ -364,7 +355,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log(
-            "Viernes: bienestar y decision guardados. Bienestar: "
+            "Viernes: progreso guardado. Bienestar: "
             + bienestarActual
             + " | Decision: "
             + decisionActual
@@ -383,13 +374,27 @@ public class BienestarDecisionesViernes : MonoBehaviour
         );
 
         bienestarActual = Mathf.Clamp(
-            bienestarActual, 0f, 100f
+            bienestarActual,
+            0f,
+            100f
         );
 
-        decisionActual = (TipoDecision)PlayerPrefs.GetInt(
+        int decisionGuardada = PlayerPrefs.GetInt(
             CLAVE_DECISION,
             0
         );
+
+        if (System.Enum.IsDefined(
+            typeof(TipoDecision),
+            decisionGuardada
+        ))
+        {
+            decisionActual = (TipoDecision)decisionGuardada;
+        }
+        else
+        {
+            decisionActual = TipoDecision.Ninguna;
+        }
 
         decisionRegistrada = PlayerPrefs.GetInt(
             CLAVE_DECISION_REGISTRADA,

@@ -52,9 +52,21 @@ public class GestorPanelesLunes : MonoBehaviour
 
     private void Start()
     {
+        // Primero intentar recuperar la partida guardada.
+        if (RestaurarCheckpoint())
+        {
+            Debug.Log("Progreso del lunes recuperado correctamente.");
+            return;
+        }
+
+        // Si no existe una partida guardada, iniciar normalmente.
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
+        }
+        else if (mision != null)
+        {
+            MostrarPanel(mision);
         }
     }
 
@@ -63,7 +75,7 @@ public class GestorPanelesLunes : MonoBehaviour
         if (panelDestino == null)
         {
             Debug.LogWarning(
-                "GestorPanelesLunes: el panel de destino no está asignado."
+                "GestorPanelesLunes: el panel de destino no esta asignado."
             );
             return;
         }
@@ -77,11 +89,17 @@ public class GestorPanelesLunes : MonoBehaviour
         {
             botonSiguienteMision.SetActive(false);
         }
+
+        // Registrar el ultimo panel visitado.
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelDestino.name
+        );
     }
 
-    private void OcultarTodosLosPaneles()
+    private GameObject[] ObtenerTodosLosPaneles()
     {
-        GameObject[] paneles =
+        return new GameObject[]
         {
             mision,
             introduccion,
@@ -108,14 +126,58 @@ public class GestorPanelesLunes : MonoBehaviour
             panelTercerAlmuerzoCostoso,
             panelCuartoAlmuerzoCostoso
         };
+    }
 
-        foreach (GameObject panel in paneles)
+    private void OcultarTodosLosPaneles()
+    {
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
         {
             if (panel != null)
             {
                 panel.SetActive(false);
             }
         }
+    }
+
+    // RECUPERAR EL ULTIMO PANEL GUARDADO
+
+    private bool RestaurarCheckpoint()
+    {
+        if (!SistemaGuardadoSemanal.IntentarObtenerPanel(
+            SceneManager.GetActiveScene().name,
+            out string nombrePanel))
+        {
+            return false;
+        }
+
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
+        {
+            if (panel != null && panel.name == nombrePanel)
+            {
+                MostrarPanel(panel);
+
+                // Reactivar la interacción de la interfaz.
+                CanvasGroup[] grupos = panel.GetComponentsInChildren<CanvasGroup>(true);
+
+                foreach (CanvasGroup grupo in grupos)
+                {
+                   grupo.interactable = true;
+                   grupo.blocksRaycasts = true;
+                }
+
+                Debug.Log(
+                    "Lunes: panel recuperado: " + nombrePanel
+                );
+
+                return true;
+            }
+        }
+
+        Debug.LogWarning(
+            "Lunes: no se encontro el panel guardado: " + nombrePanel
+        );
+
+        return false;
     }
 
     // PANEL PRINCIPAL
@@ -127,6 +189,14 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrADecision()
     {
+        Debug.Log("PRUEBA: EL BOTON SI ESTA EJECUTANDO EL METODO");
+
+        if (Paneldecision == null)
+        {
+            Debug.LogError("ERROR: Paneldecision no está asignado.");
+            return;
+        }
+
         MostrarPanel(Paneldecision);
     }
 
@@ -255,13 +325,45 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void VolverAlPanelInicial()
     {
-        MostrarPanel(panelInicial);
+        if (panelInicial != null)
+            MostrarPanel(panelInicial);
+        else
+            MostrarPanel(mision);
     }
 
     // CARGAR OTRA ESCENA
 
     public void IrAEscena(string nombreEscena)
     {
-        SceneManager.LoadScene(nombreEscena);
+        if (!string.IsNullOrWhiteSpace(nombreEscena))
+        {
+            SceneManager.LoadScene(nombreEscena);
+        }
     }
+
+    // GUARDAR PROGRESO DEL LUNES
+
+    public void GuardarProgreso()
+    {
+        if (panelActual == null)
+        {
+            Debug.LogWarning(
+                "Lunes: no hay un panel actual para guardar."
+            );
+            return;
+        }
+
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelActual.name
+        );
+
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "Lunes: progreso guardado correctamente en: " 
+            + panelActual.name
+        );
+    }
+
 }

@@ -1,3 +1,4 @@
+
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,7 +16,7 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     private float aumentoBienestar = 15f;
 
     [SerializeField, Range(0f, 50f)]
-    private float perdidaSanidad = 5f;
+    private float perdidaSanidad = 2f;
 
     [SerializeField] private float duracionAnimacion = 1.5f;
 
@@ -34,64 +35,89 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     [SerializeField] private GestorPanelesMiercoles gestorPaneles;
 
     private float bienestarActual;
+
     private Coroutine animacionBarra;
     private Coroutine animacionTexto;
 
     private bool ayudaRegistrada;
     private bool decisionNoPreguntarRegistrada;
 
+
+    // Claves de guardado
+    private const string CLAVE_BIENESTAR = "Miercoles_Bienestar";
+    private const string CLAVE_AYUDA = "Miercoles_AyudaRegistrada";
+    private const string CLAVE_NO_PREGUNTAR = "Miercoles_NoPreguntarRegistrada";
+    private const string CLAVE_DECISION_TOMADA = "Miercoles_DecisionTomada";
+    private const string CLAVE_ESTADO_GUARDADO = "Miercoles_EstadoGuardado";
+
     private void Start()
     {
-        bienestarInicial = Mathf.Clamp(
-            bienestarInicial, 0f, 100f
-        );
-
-        bienestarActual = bienestarInicial;
-
-        if (barraBienestar != null)
+        if (PlayerPrefs.GetInt(CLAVE_ESTADO_GUARDADO, 0) == 1)
         {
-            barraBienestar.minValue = 0f;
-            barraBienestar.maxValue = 100f;
-            barraBienestar.value = bienestarActual;
+            CargarProgreso();
         }
         else
         {
-            Debug.LogWarning(
-                "Asigna el Slider de bienestar en el Inspector."
-            );
+            InicializarNuevoProgreso();
         }
-
-        if (textoRetroalimentacion != null)
-        {
-            textoRetroalimentacion.gameObject.SetActive(false);
-        }
-
-        BloquearSiguiente();
     }
 
-    private void BloquearSiguiente()
+    // ==========================================
+    // INICIALIZAR PARTIDA NUEVA
+    // ==========================================
+
+    public void InicializarNuevoProgreso()
     {
+        bienestarActual = Mathf.Clamp(
+            bienestarInicial, 0f, 100f
+        );
+
+        ayudaRegistrada = false;
+        decisionNoPreguntarRegistrada = false;
         decisionTomada = false;
 
-        if (botonSiguiente != null)
-            botonSiguiente.interactable = false;
+        ActualizarSlider();
+        ActualizarBotonSiguiente();
+
+        if (textoRetroalimentacion != null)
+            textoRetroalimentacion.gameObject.SetActive(false);
+
+        GuardarProgreso();
     }
 
-    private void DesbloquearSiguiente()
+    // ==========================================
+    // PREPARAR DECISION
+    // ==========================================
+
+    public void PrepararDecision()
     {
-        decisionTomada = true;
+        // No reiniciar una decision ya registrada.
+        if (ayudaRegistrada || decisionNoPreguntarRegistrada)
+        {
+            decisionTomada = true;
+            ActualizarBotonSiguiente();
+            return;
+        }
 
-        if (botonSiguiente != null)
-            botonSiguiente.interactable = true;
+        decisionTomada = false;
+
+        ActualizarBotonSiguiente();
+
+        if (textoRetroalimentacion != null)
+            textoRetroalimentacion.gameObject.SetActive(false);
     }
 
+    // ==========================================
     // OPCION 1: PREGUNTAR A LOS COMPAÑEROS
+    // ==========================================
+
     public void RegistrarAyudaCompaneros()
     {
         if (ayudaRegistrada || decisionNoPreguntarRegistrada)
             return;
 
         ayudaRegistrada = true;
+        decisionTomada = true;
 
         AplicarCambioBienestar(
             aumentoBienestar,
@@ -100,13 +126,17 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         );
     }
 
+    // ==========================================
     // OPCION 2: NO PREGUNTAR A LOS COMPAÑEROS
+    // ==========================================
+
     public void RegistrarNoPreguntar()
     {
         if (ayudaRegistrada || decisionNoPreguntarRegistrada)
             return;
 
         decisionNoPreguntarRegistrada = true;
+        decisionTomada = true;
 
         AplicarCambioBienestar(
             -perdidaSanidad,
@@ -115,15 +145,16 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         );
     }
 
-    // ACTUALIZA LA BARRA Y EL TEXTO
+    // ==========================================
+    // APLICAR CAMBIO DE BIENESTAR
+    // ==========================================
+
     private void AplicarCambioBienestar(
         float cambio,
         bool esAumento,
         string nombreIndicador
     )
     {
-        DesbloquearSiguiente();
-
         float bienestarAnterior = bienestarActual;
 
         bienestarActual = Mathf.Clamp(
@@ -152,13 +183,29 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
                 StopCoroutine(animacionTexto);
 
             animacionTexto = StartCoroutine(
-                MostrarPuntos(diferencia, esAumento, nombreIndicador)
+                MostrarPuntos(
+                    diferencia,
+                    esAumento,
+                    nombreIndicador
+                )
             );
         }
+
+        ActualizarBotonSiguiente();
+
+        // Guardar inmediatamente la consecuencia y la decision.
+        GuardarProgreso();
     }
+
+    // ==========================================
+    // ANIMACION DE LA BARRA
+    // ==========================================
 
     private IEnumerator AnimarBarra(float valorFinal)
     {
+        if (barraBienestar == null)
+            yield break;
+
         float valorInicial = barraBienestar.value;
         float tiempo = 0f;
 
@@ -175,7 +222,9 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
             );
 
             barraBienestar.value = Mathf.Lerp(
-                valorInicial, valorFinal, suavizado
+                valorInicial,
+                valorFinal,
+                suavizado
             );
 
             yield return null;
@@ -184,6 +233,10 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         barraBienestar.value = valorFinal;
         animacionBarra = null;
     }
+
+    // ==========================================
+    // MOSTRAR PUNTOS
+    // ==========================================
 
     private IEnumerator MostrarPuntos(
         float puntos,
@@ -219,7 +272,9 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
             );
 
             rectTransform.anchoredPosition = Vector2.Lerp(
-                posicionInicial, posicionFinal, progreso
+                posicionInicial,
+                posicionFinal,
+                progreso
             );
 
             textoRetroalimentacion.alpha = 1f - progreso;
@@ -229,12 +284,16 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
         rectTransform.anchoredPosition = posicionInicial;
         textoRetroalimentacion.alpha = 1f;
+
         textoRetroalimentacion.gameObject.SetActive(false);
 
         animacionTexto = null;
     }
 
-    // BOTON SIGUIENTE: IDENTIFICA LA DECISION Y CAMBIA DE PANEL
+    // ==========================================
+    // BOTON SIGUIENTE
+    // ==========================================
+
     public void Siguiente()
     {
         if (!PuedeContinuar())
@@ -258,6 +317,131 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         }
     }
 
+    // ==========================================
+    // BLOQUEAR Y DESBLOQUEAR SIGUIENTE
+    // ==========================================
+
+    private void ActualizarBotonSiguiente()
+    {
+        if (botonSiguiente != null)
+            botonSiguiente.interactable = decisionTomada;
+    }
+
+    // ==========================================
+    // GUARDAR PROGRESO
+    // ==========================================
+
+    public void GuardarProgreso()
+    {
+        PlayerPrefs.SetFloat(
+            CLAVE_BIENESTAR,
+            bienestarActual
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_AYUDA,
+            ayudaRegistrada ? 1 : 0
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_NO_PREGUNTAR,
+            decisionNoPreguntarRegistrada ? 1 : 0
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_DECISION_TOMADA,
+            decisionTomada ? 1 : 0
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_ESTADO_GUARDADO,
+            1
+        );
+
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "Miercoles guardado. Bienestar: "
+            + bienestarActual
+            + " | Pregunto: "
+            + ayudaRegistrada
+            + " | No pregunto: "
+            + decisionNoPreguntarRegistrada
+        );
+    }
+
+    // ==========================================
+    // CARGAR PROGRESO
+    // ==========================================
+
+    public void CargarProgreso()
+    {
+        bienestarActual = PlayerPrefs.GetFloat(
+            CLAVE_BIENESTAR,
+            bienestarInicial
+        );
+
+        bienestarActual = Mathf.Clamp(
+            bienestarActual,
+            0f,
+            100f
+        );
+
+        ayudaRegistrada = PlayerPrefs.GetInt(
+            CLAVE_AYUDA,
+            0
+        ) == 1;
+
+        decisionNoPreguntarRegistrada = PlayerPrefs.GetInt(
+            CLAVE_NO_PREGUNTAR,
+            0
+        ) == 1;
+
+        decisionTomada = PlayerPrefs.GetInt(
+            CLAVE_DECISION_TOMADA,
+            0
+        ) == 1;
+
+        ActualizarSlider();
+        ActualizarBotonSiguiente();
+
+        if (textoRetroalimentacion != null)
+            textoRetroalimentacion.gameObject.SetActive(false);
+
+        Debug.Log(
+            "Miercoles recuperado. Bienestar: "
+            + bienestarActual
+            + " | Pregunto: "
+            + ayudaRegistrada
+            + " | No pregunto: "
+            + decisionNoPreguntarRegistrada
+        );
+    }
+
+    // ==========================================
+    // ACTUALIZAR SLIDER
+    // ==========================================
+
+    private void ActualizarSlider()
+    {
+        if (barraBienestar != null)
+        {
+            barraBienestar.minValue = 0f;
+            barraBienestar.maxValue = 100f;
+            barraBienestar.value = bienestarActual;
+        }
+        else
+        {
+            Debug.LogWarning(
+                "Asigna el Slider de bienestar en el Inspector."
+            );
+        }
+    }
+
+    // ==========================================
+    // CONSULTAR ESTADO
+    // ==========================================
+
     public float ObtenerBienestar()
     {
         return bienestarActual;
@@ -266,5 +450,15 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     public bool PuedeContinuar()
     {
         return decisionTomada;
+    }
+
+    public bool PreguntoAcompaneros()
+    {
+        return ayudaRegistrada;
+    }
+
+    public bool DecidioNoPreguntar()
+    {
+        return decisionNoPreguntarRegistrada;
     }
 }
