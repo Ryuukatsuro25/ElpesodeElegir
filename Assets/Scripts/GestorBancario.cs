@@ -36,7 +36,15 @@ public class GestorBancario : MonoBehaviour
     private DatosBancarios datos;
     private string rutaArchivo;
 
-    void Awake()
+    // Propiedades para consultar los valores bancarios
+    // desde otros scripts sin modificar directamente los datos.
+    public int SaldoActual => datos != null ? datos.saldoActual : 0;
+
+    public int IngresosTotales => datos != null ? datos.ingresosTotales : 0;
+
+    public int GastosTotales => datos != null ? datos.gastosTotales : 0;
+
+    private void Awake()
     {
         rutaArchivo = Application.persistentDataPath + "/datosBancarios.json";
         CargarDatos();
@@ -90,6 +98,12 @@ public class GestorBancario : MonoBehaviour
 
     public void GuardarDatos()
     {
+        if (datos == null)
+        {
+            Debug.LogWarning("No hay datos bancarios para guardar.");
+            return;
+        }
+
         string json = JsonUtility.ToJson(datos, true);
         File.WriteAllText(rutaArchivo, json);
     }
@@ -100,6 +114,9 @@ public class GestorBancario : MonoBehaviour
         {
             datos = new DatosBancarios();
         }
+
+        // Evita registrar montos negativos por error.
+        monto = Mathf.Abs(monto);
 
         Transaccion nueva = new Transaccion
         {
@@ -167,7 +184,13 @@ public class GestorBancario : MonoBehaviour
         if (File.Exists(rutaArchivo))
         {
             File.Delete(rutaArchivo);
-            Debug.Log("Datos borrados. Reinicia el juego para ver una nueva mesada.");
+
+            Debug.Log("Datos bancarios borrados.");
+
+            // Reinicia los datos en memoria y genera una nueva mesada.
+            datos = new DatosBancarios();
+            GenerarMesadaInicial();
+            ActualizarUI();
         }
     }
 }

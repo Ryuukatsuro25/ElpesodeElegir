@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GestorPanelesLunes : MonoBehaviour
 {
@@ -48,6 +49,16 @@ public class GestorPanelesLunes : MonoBehaviour
     [Header("Sistema bancario")]
     [SerializeField] private GestorBancario gestorBancario;
 
+    [Header("Textos bancarios - Almuerzo barato")]
+    [SerializeField] private TextMeshProUGUI saldoBarato;
+    [SerializeField] private TextMeshProUGUI ingresosBarato;
+    [SerializeField] private TextMeshProUGUI gastosBarato;
+
+    [Header("Textos bancarios - Almuerzo costoso")]
+    [SerializeField] private TextMeshProUGUI saldoCostoso;
+    [SerializeField] private TextMeshProUGUI ingresosCostoso;
+    [SerializeField] private TextMeshProUGUI gastosCostoso;
+
     [Header("Panel inicial opcional")]
     [SerializeField] private GameObject panelInicial;
 
@@ -60,11 +71,20 @@ public class GestorPanelesLunes : MonoBehaviour
             gestorBancario = FindObjectOfType<GestorBancario>();
         }
 
+        if (gestorBancario == null)
+        {
+            Debug.LogWarning(
+                "GestorPanelesLunes: no se encontró GestorBancario en la escena."
+            );
+        }
+
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
         }
     }
+
+    // NAVEGACIÓN ENTRE PANELES
 
     public void MostrarPanel(GameObject panelDestino)
     {
@@ -188,6 +208,8 @@ public class GestorPanelesLunes : MonoBehaviour
             "Almuerzo barato con Juan"
         );
 
+        ActualizarPanelBanco(true);
+
         MostrarPanel(panelBancoAlmuerzoBarato);
     }
 
@@ -251,6 +273,8 @@ public class GestorPanelesLunes : MonoBehaviour
             "Almuerzo costoso con Juan"
         );
 
+        ActualizarPanelBanco(false);
+
         MostrarPanel(panelBancoAlmuerzoCostoso);
     }
 
@@ -288,6 +312,69 @@ public class GestorPanelesLunes : MonoBehaviour
         );
 
         Debug.Log("Gasto registrado: " + descripcion + " -$" + monto);
+    }
+
+    // ACTUALIZACIÓN DE LOS PANELES BANCARIOS
+
+    private void ActualizarPanelBanco(bool almuerzoBarato)
+    {
+        if (gestorBancario == null)
+        {
+            Debug.LogWarning(
+                "No se puede actualizar el panel: GestorBancario no está asignado."
+            );
+            return;
+        }
+
+        TextMeshProUGUI textoSaldo;
+        TextMeshProUGUI textoIngresos;
+        TextMeshProUGUI textoGastos;
+
+        if (almuerzoBarato)
+        {
+            textoSaldo = saldoBarato;
+            textoIngresos = ingresosBarato;
+            textoGastos = gastosBarato;
+        }
+        else
+        {
+            textoSaldo = saldoCostoso;
+            textoIngresos = ingresosCostoso;
+            textoGastos = gastosCostoso;
+        }
+
+        if (textoSaldo != null)
+        {
+            textoSaldo.text = $"${gestorBancario.SaldoActual:N0}";
+        }
+        else
+        {
+            Debug.LogWarning(
+                "No se asignó el texto del saldo del panel bancario."
+            );
+        }
+
+        if (textoIngresos != null)
+        {
+            textoIngresos.text = $"+${gestorBancario.IngresosTotales:N0}";
+        }
+        else
+        {
+            Debug.LogWarning(
+                "No se asignó el texto de ingresos del panel bancario."
+            );
+        }
+
+        if (textoGastos != null)
+        {
+            textoGastos.text = $"-${gestorBancario.GastosTotales:N0}";
+        }
+        else
+        {
+            Debug.LogWarning(
+                "No se asignó el texto de gastos del panel bancario."
+            );
+        }
     }
 
     // VOLVER AL PANEL INICIAL
