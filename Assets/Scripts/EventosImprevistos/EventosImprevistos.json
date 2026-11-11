@@ -1,0 +1,141 @@
+{
+  "cobroDiferido": {
+    "texto": "Es hora de pagarle a tu padre el arreglo del computador",
+    "descripcionMovimiento": "Pago a papá: arreglo del computador",
+    "monto": -40000,
+    "bienestar": -50
+  },
+  "eventos": [
+    {
+      "id": "computador",
+      "pantallasIntro": [
+        "No puede ser… ¿Por qué justo ahora? Dañé mi laptop. Y ahora voy a tener que gastar mis ahorros para arreglarla."
+      ],
+      "textoDecision": "La reparación de la laptop es costosa y tu dinero es limitado. La decisión que tomes ahora afectará tus ahorros y tu nivel de independencia financiera. Elige con cuidado.\n\nValor de la reparación: $30.000",
+      "segundosAntesDeOpciones": 0,
+      "opciones": [
+        {
+          "etiqueta": "Reparar",
+          "impacto": "-$30.000",
+          "monto": -30000,
+          "descripcionMovimiento": "Reparación del computador",
+          "bienestar": 0,
+          "medalla": "",
+          "activaCobroDiferido": false,
+          "consecuencias": [ "Decidiste reparar tu laptop." ],
+          "mensajePersonaje": "Me tocó sacar de mis ahorros, pero ya tengo mi laptop de vuelta."
+        },
+        {
+          "etiqueta": "No Reparar",
+          "impacto": "Sin costo",
+          "monto": 0,
+          "descripcionMovimiento": "",
+          "bienestar": 0,
+          "medalla": "",
+          "activaCobroDiferido": false,
+          "consecuencias": [
+            "Por ahora usaré los computadores de la universidad… tocará quedarme hasta tarde, trabajando y aguantando, hasta poder reparar mi laptop.",
+            "Decidiste no arreglar la computadora."
+          ],
+          "mensajePersonaje": ""
+        },
+        {
+          "etiqueta": "Pedir prestado",
+          "impacto": "Sin costo hoy · luego -$40.000 y -50 de bienestar",
+          "monto": 0,
+          "descripcionMovimiento": "",
+          "bienestar": 0,
+          "medalla": "",
+          "activaCobroDiferido": true,
+          "consecuencias": [
+            "Le pediré prestado a mi papá por ahora, pero luego se lo tendré que devolver con los intereses.",
+            "Arreglaste tu laptop con ayuda de tu padre, pero recuerda que más adelante se te cobrará + intereses."
+          ],
+          "mensajePersonaje": ""
+        }
+      ]
+    },
+    {
+      "id": "cumpleanos",
+      "pantallasIntro": [
+        "Hablando con tus compañeros te das cuenta que es el cumpleaños de uno.",
+        "EVENTO\n\n¡¿Cómo?, hoy es tu cumpleaños?! ¡Felicidades!",
+        "Tras la sorpresa del cumpleaños piensas darle un regalo y de qué tipo."
+      ],
+      "textoDecision": "¿Cómo quieres participar en el cumpleaños?",
+      "segundosAntesDeOpciones": 0,
+      "opciones": [
+        {
+          "etiqueta": "Sugerir vaca",
+          "impacto": "-$15.000 · +50 SANIDAD",
+          "monto": -15000,
+          "descripcionMovimiento": "Vaca para el cumpleaños",
+          "bienestar": 50,
+          "medalla": "companerismo",
+          "activaCobroDiferido": false,
+          "consecuencias": [
+            "Muchachos, ¿y si vamos todos a jugar bolos? Así invitamos al cumpleañero.",
+            "Tú y tus compañeros deciden pasar el resto del día en los bolos. Se divierten y ríen mucho mientras juegan."
+          ],
+          "mensajePersonaje": "Puse mi parte de la vaca y la pasamos increíble todos juntos."
+        },
+        {
+          "etiqueta": "Dar un regalo personal",
+          "impacto": "-$30.000 · +100 SANIDAD",
+          "monto": -30000,
+          "descripcionMovimiento": "Regalo de cumpleaños",
+          "bienestar": 100,
+          "medalla": "",
+          "activaCobroDiferido": false,
+          "consecuencias": [ "Le das un regalo al cumpleañero que le gusta mucho." ],
+          "mensajePersonaje": "Gasté bastante, pero verlo tan feliz con el regalo valió la pena."
+        },
+        {
+          "etiqueta": "No dar nada",
+          "impacto": "Sin costo",
+          "monto": 0,
+          "descripcionMovimiento": "",
+          "bienestar": -20,
+          "medalla": "",
+          "activaCobroDiferido": false,
+          "consecuencias": [ "Decidiste no dar nada." ],
+          "mensajePersonaje": ""
+        }
+      ]
+    },
+    {
+      "id": "vecina",
+      "pantallasIntro": [],
+      "textoDecision": "Al llegar a casa, ocurre un evento no planificado: tienes una vecina de avanzada edad que no puede realizar algunas actividades básicas, como comprar los alimentos para preparar su almuerzo. La vecina le pide al joven el favor de que haga el mandado.\n\n¿Deseas ayudar a tu vecina?",
+      "segundosAntesDeOpciones": 4,
+      "opciones": [
+        {
+          "etiqueta": "SÍ",
+          "impacto": "",
+          "monto": 15000,
+          "descripcionMovimiento": "Bonificación por ayudar a la vecina",
+          "bienestar": 0,
+          "medalla": "buena_accion",
+          "activaCobroDiferido": false,
+          "consecuencias": [
+            "Al ayudar, tu vecina acepta hacer el mandado comprando los alimentos que ella necesita. Por su ayuda recibe una bonificación de $15.000 pesos."
+          ],
+          "mensajePersonaje": "Me cansé un poco, pero me alegra haberla ayudado."
+        },
+        {
+          "etiqueta": "NO",
+          "impacto": "",
+          "monto": 0,
+          "descripcionMovimiento": "",
+          "bienestar": -20,
+          "medalla": "",
+          "activaCobroDiferido": false,
+          "consecuencias": [
+            "El joven decide no ayudar a su vecina debido al cansancio y entra directamente a su casa. Al no realizar el favor, no recibe ningún ingreso adicional y, aunque descansa más temprano, esta decisión genera un impacto emocional negativo, ya que su salud mental disminuye y aparece una sensación de culpa o malestar por no haber ayudado."
+          ],
+          "mensajePersonaje": ""
+        }
+      ]
+    }
+  ]
+}

@@ -43,33 +43,50 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     private Coroutine animacionBarra;
     private Coroutine animacionTexto;
+    private Coroutine corrutinaDecision;
 
     private bool decisionRegistrada = false;
+    private bool estadoInicializado = false;
+
+    // Claves de guardado
+    private const string CLAVE_BIENESTAR = "Viernes_Bienestar";
+    private const string CLAVE_DECISION = "Viernes_Decision";
+    private const string CLAVE_DECISION_REGISTRADA = "Viernes_DecisionRegistrada";
 
     private void Start()
     {
-        bienestarInicial = Mathf.Clamp(
+        if (!estadoInicializado)
+        {
+            InicializarNuevoProgreso();
+        }
+    }
+
+    // ==========================================
+    // INICIALIZAR PARTIDA NUEVA
+    // ==========================================
+
+    public void InicializarNuevoProgreso()
+    {
+        bienestarActual = Mathf.Clamp(
             bienestarInicial, 0f, 100f
         );
 
-        bienestarActual = bienestarInicial;
+        decisionActual = TipoDecision.Ninguna;
+        decisionRegistrada = false;
 
-        if (barraBienestar != null)
-        {
-            barraBienestar.minValue = 0f;
-            barraBienestar.maxValue = 100f;
-            barraBienestar.value = bienestarActual;
-        }
+        estadoInicializado = true;
+
+        ActualizarSlider();
 
         if (textoRetroalimentacion != null)
-        {
             textoRetroalimentacion.gameObject.SetActive(false);
-        }
 
         BloquearSiguiente();
     }
 
+    // ==========================================
     // PREPARAR PANEL DE DECISION
+    // ==========================================
 
     public void PrepararDecision()
     {
@@ -79,10 +96,12 @@ public class BienestarDecisionesViernes : MonoBehaviour
         BloquearSiguiente();
 
         if (textoRetroalimentacion != null)
-        {
             textoRetroalimentacion.gameObject.SetActive(false);
-        }
     }
+
+    // ==========================================
+    // REGISTRAR PEDIR COPIA
+    // ==========================================
 
     public void RegistrarPedirCopia()
     {
@@ -91,14 +110,20 @@ public class BienestarDecisionesViernes : MonoBehaviour
         decisionRegistrada = true;
         decisionActual = TipoDecision.PedirCopia;
 
-        // Aplicar perdida de bienestar
-        AplicarCambioBienestar(perdidaPedirCopia);
+        if (corrutinaDecision != null)
+            StopCoroutine(corrutinaDecision);
 
-        StartCoroutine(AplicarDecisionYContinuar(
-        perdidaPedirCopia,
-        true
-        ));
+        corrutinaDecision = StartCoroutine(
+            AplicarDecisionYContinuar(
+                perdidaPedirCopia,
+                true
+            )
+        );
     }
+
+    // ==========================================
+    // REGISTRAR ENTREGAR INCOMPLETA
+    // ==========================================
 
     public void RegistrarEntregarIncompleta()
     {
@@ -107,16 +132,20 @@ public class BienestarDecisionesViernes : MonoBehaviour
         decisionRegistrada = true;
         decisionActual = TipoDecision.EntregarIncompleta;
 
-        // Aplicar perdida de bienestar
-        AplicarCambioBienestar(perdidaEntregarIncompleta);
+        if (corrutinaDecision != null)
+            StopCoroutine(corrutinaDecision);
 
-        StartCoroutine(AplicarDecisionYContinuar(
-        perdidaEntregarIncompleta,
-        false
-        ));
+        corrutinaDecision = StartCoroutine(
+            AplicarDecisionYContinuar(
+                perdidaEntregarIncompleta,
+                false
+            )
+        );
     }
 
+    // ==========================================
     // APLICAR CAMBIO DE BIENESTAR
+    // ==========================================
 
     private void AplicarCambioBienestar(float perdida)
     {
@@ -154,10 +183,15 @@ public class BienestarDecisionesViernes : MonoBehaviour
         DesbloquearSiguiente();
     }
 
+    // ==========================================
     // ANIMACION DESCENDENTE
+    // ==========================================
 
     private IEnumerator AnimarBarra(float valorFinal)
     {
+        if (barraBienestar == null)
+            yield break;
+
         float valorInicial = barraBienestar.value;
         float tiempo = 0f;
 
@@ -184,7 +218,9 @@ public class BienestarDecisionesViernes : MonoBehaviour
         animacionBarra = null;
     }
 
+    // ==========================================
     // MOSTRAR PUNTOS PERDIDOS
+    // ==========================================
 
     private IEnumerator MostrarPuntos(float puntos)
     {
@@ -234,57 +270,60 @@ public class BienestarDecisionesViernes : MonoBehaviour
         animacionTexto = null;
     }
 
+    // ==========================================
+    // APLICAR DECISION Y CONTINUAR
+    // ==========================================
+
     private IEnumerator AplicarDecisionYContinuar(
-         float perdida,
-         bool pedirCopia)
+        float perdida,
+        bool pedirCopia
+    )
     {
-    // Aplicar el cambio de bienestar
-    AplicarCambioBienestar(perdida);
+        // Aplicar la perdida una sola vez
+        AplicarCambioBienestar(perdida);
 
-    // Esperar a que termine la animación
-    yield return new WaitForSeconds(
-        duracionAnimacion
-    );
+        // Esperar la animacion de la barra
+        yield return new WaitForSeconds(duracionAnimacion);
 
-    // Esperar también a que termine el texto flotante
-    if (textoRetroalimentacion != null)
-    {
-        yield return new WaitForSeconds(duracionTexto);
+        // Esperar el texto flotante
+        if (textoRetroalimentacion != null)
+            yield return new WaitForSeconds(duracionTexto);
+
+        // Cambiar al panel correspondiente
+        if (gestorPaneles != null)
+        {
+            if (pedirCopia)
+            {
+                gestorPaneles.IrADecisionPedirCopia();
+            }
+            else
+            {
+                gestorPaneles.IrADecisionNoHacerTarea();
+            }
+        }
+
+        corrutinaDecision = null;
     }
 
-    // Cambiar al panel correspondiente
-    if (gestorPaneles != null)
-    {
-        if (pedirCopia)
-        {
-            gestorPaneles.IrADecisionPedirCopia();
-        }
-        else
-        {
-            gestorPaneles.IrADecisionNoHacerTarea();
-        }
-    }
-}
-
+    // ==========================================
     // BLOQUEAR Y DESBLOQUEAR SIGUIENTE
+    // ==========================================
 
     private void BloquearSiguiente()
     {
         if (botonSiguiente != null)
-        {
             botonSiguiente.interactable = false;
-        }
     }
 
     private void DesbloquearSiguiente()
     {
         if (botonSiguiente != null)
-        {
             botonSiguiente.interactable = true;
-        }
     }
 
+    // ==========================================
     // CONTINUAR SEGUN LA DECISION
+    // ==========================================
 
     public void Continuar()
     {
@@ -301,8 +340,112 @@ public class BienestarDecisionesViernes : MonoBehaviour
         }
     }
 
+    // ==========================================
+    // GUARDAR PROGRESO
+    // ==========================================
+
+    public void GuardarProgreso()
+    {
+        PlayerPrefs.SetFloat(
+            CLAVE_BIENESTAR,
+            bienestarActual
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_DECISION,
+            (int)decisionActual
+        );
+
+        PlayerPrefs.SetInt(
+            CLAVE_DECISION_REGISTRADA,
+            decisionRegistrada ? 1 : 0
+        );
+
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "Viernes: bienestar y decision guardados. Bienestar: "
+            + bienestarActual
+            + " | Decision: "
+            + decisionActual
+        );
+    }
+
+    // ==========================================
+    // CARGAR PROGRESO
+    // ==========================================
+
+    public void CargarProgreso()
+    {
+        bienestarActual = PlayerPrefs.GetFloat(
+            CLAVE_BIENESTAR,
+            bienestarInicial
+        );
+
+        bienestarActual = Mathf.Clamp(
+            bienestarActual, 0f, 100f
+        );
+
+        decisionActual = (TipoDecision)PlayerPrefs.GetInt(
+            CLAVE_DECISION,
+            0
+        );
+
+        decisionRegistrada = PlayerPrefs.GetInt(
+            CLAVE_DECISION_REGISTRADA,
+            0
+        ) == 1;
+
+        estadoInicializado = true;
+
+        ActualizarSlider();
+
+        if (textoRetroalimentacion != null)
+            textoRetroalimentacion.gameObject.SetActive(false);
+
+        if (decisionRegistrada)
+            DesbloquearSiguiente();
+        else
+            BloquearSiguiente();
+
+        Debug.Log(
+            "Viernes: progreso recuperado. Bienestar: "
+            + bienestarActual
+            + " | Decision: "
+            + decisionActual
+        );
+    }
+
+    // ==========================================
+    // ACTUALIZAR SLIDER SIN ANIMACION
+    // ==========================================
+
+    private void ActualizarSlider()
+    {
+        if (barraBienestar != null)
+        {
+            barraBienestar.minValue = 0f;
+            barraBienestar.maxValue = 100f;
+            barraBienestar.value = bienestarActual;
+        }
+    }
+
+    // ==========================================
+    // OBTENER BIENESTAR Y DECISION
+    // ==========================================
+
     public float ObtenerBienestar()
     {
         return bienestarActual;
+    }
+
+    public TipoDecision ObtenerDecision()
+    {
+        return decisionActual;
+    }
+
+    public bool TieneDecisionRegistrada()
+    {
+        return decisionRegistrada;
     }
 }

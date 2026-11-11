@@ -32,6 +32,16 @@ public class GestorPanelesViernes : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1f;
+
+        if (CargarProgresoGuardado())
+        return;
+
+        if (bienestarViernes != null)
+        {
+            bienestarViernes.InicializarNuevoProgreso();
+        }
+
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
@@ -176,4 +186,94 @@ public class GestorPanelesViernes : MonoBehaviour
             );
         }
     }
+
+    // ==========================================
+// GUARDAR PROGRESO DEL VIERNES
+// ==========================================
+
+public void GuardarProgreso()
+{
+    if (panelActual == null)
+    {
+        Debug.LogWarning("No hay un panel actual para guardar.");
+        return;
+    }
+
+    PlayerPrefs.SetString(
+        "Viernes_PanelActual",
+        panelActual.name
+    );
+
+    PlayerPrefs.SetInt("Viernes_ProgresoGuardado", 1);
+
+    PlayerPrefs.Save();
+
+    Debug.Log("Progreso guardado en: " + panelActual.name);
+}
+
+// ==========================================
+// RECUPERAR PROGRESO DEL VIERNES
+// ==========================================
+
+public bool CargarProgresoGuardado()
+{
+    if (PlayerPrefs.GetInt("Viernes_ProgresoGuardado", 0) == 0)
+        return false;
+
+    string nombrePanel = PlayerPrefs.GetString(
+        "Viernes_PanelActual",
+        ""
+    );
+
+    GameObject[] paneles =
+    {
+        mision,
+        introduccion,
+        panelDecision,
+        decisionNoHacerTarea,
+        decisionPedirCopia,
+        segundoPanelNoHacerTarea,
+        tercerPanelNoHacerTarea,
+        segundoPanelPedirCopia,
+        tercerPanelPedirCopia
+    };
+
+    foreach (GameObject panel in paneles)
+    {
+        if (panel != null && panel.name == nombrePanel)
+        {
+            MostrarPanel(panel);
+
+            Debug.Log("Progreso recuperado: " + nombrePanel);
+
+            return true;
+        }
+    }
+
+    Debug.LogWarning(
+        "No se encontró el panel guardado: " + nombrePanel
+    );
+
+    return false;
+}
+
+// ==========================================
+// GUARDAR Y SALIR AL MENU PRINCIPAL
+// ==========================================
+
+public void GuardarYSalir(string nombreEscenaMenu)
+{
+    GuardarProgreso();
+
+    Time.timeScale = 1f;
+
+    if (!string.IsNullOrWhiteSpace(nombreEscenaMenu))
+    {
+        SceneManager.LoadScene(nombreEscenaMenu);
+    }
+    else
+    {
+        Debug.LogError("No se ha asignado la escena del menú principal.");
+    }
+}
 }

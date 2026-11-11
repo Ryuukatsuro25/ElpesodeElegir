@@ -1,83 +1,69 @@
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 [System.Serializable]
 public class OpcionBoton
 {
-    [Tooltip("Botón de acción de la UI.")]
+    [Tooltip("BotÃ³n de acciÃ³n de la UI.")]
     public Button boton;
 
-    [Tooltip("Texto descriptivo de la opción para la transacción.")]
+    [Tooltip("Texto descriptivo de la opciÃ³n para la transacciÃ³n.")]
     public string descripcionOp;
 
-    [Tooltip("Monto de la transacción. Positivo para ingreso, negativo para gasto, 0 para gratis.")]
+    [Tooltip("Monto de la transacciÃ³n. Positivo para ingreso, negativo para gasto, 0 para gratis.")]
     public int monto;
 }
 
 public class controlDialogos : MonoBehaviour
 {
     [Header("Referencias de Sistemas")]
-    [Tooltip("Instancia del GestorBancario en la escena.")]
     [SerializeField] private GestorBancario gestorBancario;
 
     [Header("UI Elements - Dialogs")]
-    [Tooltip("Componente de texto de TextMeshPro donde se mostrarán las frases.")]
     [SerializeField] private TextMeshProUGUI textDisplay;
-
-    [Tooltip("Botón principal para avanzar de texto.")]
     [SerializeField] private Button nextButton;
-
-    [Tooltip("Panel de opciones que se activará al llegar al final del texto.")]
     [SerializeField] private GameObject endPanel;
 
+    [Header("Velocidad de escritura")]
+    [SerializeField] private float velocidadNormal = 0.04f;
+    [SerializeField] private float velocidadRapida = 0.008f;
+
     [Header("UI Elements - Action Buttons Config")]
-    [Tooltip("Lista de botones con sus nombres y montos (positivos = ingreso, negativos = gasto).")]
     [SerializeField] private OpcionBoton[] opciones;
 
     [Header("UI Elements - Confirmation Panel")]
-    [Tooltip("Panel de confirmación que aparece tras seleccionar una opción.")]
     [SerializeField] private GameObject confirmationPanel;
-
-    [Tooltip("Texto dentro del panel de confirmación (ej: Escoges Uber).")]
     [SerializeField] private TextMeshProUGUI confirmationText;
-
-    [Tooltip("Texto donde se mostrará el costo/ingreso en el panel de confirmación.")]
     [SerializeField] private TextMeshProUGUI costText;
-
-    [Tooltip("Botón para cancelar/regresar del panel de confirmación.")]
     [SerializeField] private Button backButton;
-
-    [Tooltip("Botón para confirmar y registrar la transacción en el JSON.")]
     [SerializeField] private Button confirmNextButton;
 
     [Header("Content")]
     [TextArea(2, 5)]
-    [Tooltip("Lista de textos que se mostrarán en orden.")]
     [SerializeField] private string[] textArray;
 
     private int currentIndex = 0;
     private OpcionBoton opcionSeleccionada;
 
+    private Coroutine escrituraCoroutine;
+    private bool escribiendo = false;
+
     private void Start()
     {
-        // Auto-detectar GestorBancario si no fue asignado manualmente en el Inspector
         if (gestorBancario == null)
         {
             gestorBancario = FindObjectOfType<GestorBancario>();
         }
 
-        // Ocultar paneles al inicio
         if (endPanel != null) endPanel.SetActive(false);
         if (confirmationPanel != null) confirmationPanel.SetActive(false);
 
-        // Ocultar los botones de opción al inicio
         SetActionButtonsState(false);
-
-        // Suscribir eventos dinámicos a cada botón de opción
         SetupActionButtons();
 
-        // Suscribir eventos a los botones del panel de confirmación
         if (backButton != null)
         {
             backButton.onClick.AddListener(CloseConfirmationPanel);
@@ -88,50 +74,83 @@ public class controlDialogos : MonoBehaviour
             confirmNextButton.onClick.AddListener(SaveToJSONOnly);
         }
 
-        // Configurar el texto inicial
         if (textArray != null && textArray.Length > 0)
         {
-            textDisplay.text = textArray[currentIndex];
+            MostrarTexto(currentIndex);
         }
         else
         {
-            Debug.LogWarning("El arreglo de textos está vacío.");
+            Debug.LogWarning("El arreglo de textos estÃ¡ vacÃ­o.");
         }
 
-        // Asignar el evento al botón principal de avance
         if (nextButton != null)
         {
             nextButton.onClick.AddListener(AdvanceText);
         }
     }
 
-    /// <summary>
-    /// Asigna dinámicamente los eventos OnClick a cada opción configurada.
-    /// </summary>
-    private void SetupActionButtons()
+    private void MostrarTexto(int indice)
     {
-        if (opciones == null) return;
+        if (textDisplay == null) return;
 
-        foreach (OpcionBoton op in opciones)
+        if (escrituraCoroutine != null)
         {
-            if (op == null || op.boton == null) continue;
-
-            OpcionBoton seleccion = op; // Copia local necesaria para la expresión lambda
-            op.boton.onClick.AddListener(() => OnOptionSelected(seleccion));
+            StopCoroutine(escrituraCoroutine);
         }
+
+        textDisplay.text = textArray[indice];
+        textDisplay.ForceMeshUpdate();
+        textDisplay.maxVisibleCharacters = 0;
+
+        escrituraCoroutine = StartCoroutine(EscribirTexto());
     }
 
-    /// <summary>
-    /// Avanza al siguiente texto del arreglo o activa el panel de opciones si es el último.
-    /// </summary>
+    private IEnumerator EscribirTexto()
+    {
+        escribiendo = true;
+
+        bool textoRapido = PlayerPrefs.GetInt("TextoRapido", 0) == 1;
+
+        float velocidad = textoRapido
+            ? velocidadRapida
+            : velocidadNormal;
+
+        int totalCaracteres = textDisplay.textInfo.characterCount;
+
+        for (int i = 0; i < totalCaracteres; i++)
+        {
+            textDisplay.maxVisibleCharacters = i + 1;
+            yield return new WaitForSeconds(velocidad);
+        }
+
+        textDisplay.maxVisibleCharacters = totalCaracteres;
+        escribiendo = false;
+        escrituraCoroutine = null;
+    }
+
     public void AdvanceText()
     {
         if (textArray == null || textArray.Length == 0) return;
 
+        // Si todavÃ­a se estÃ¡ escribiendo, mostrar toda la frase.
+        if (escribiendo)
+        {
+            if (escrituraCoroutine != null)
+            {
+                StopCoroutine(escrituraCoroutine);
+                escrituraCoroutine = null;
+            }
+
+            textDisplay.maxVisibleCharacters = textDisplay.textInfo.characterCount;
+            escribiendo = false;
+            return;
+        }
+
+        // Avanzar a la siguiente frase.
         if (currentIndex < textArray.Length - 1)
         {
             currentIndex++;
-            textDisplay.text = textArray[currentIndex];
+            MostrarTexto(currentIndex);
         }
         else
         {
@@ -139,9 +158,6 @@ public class controlDialogos : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Oculta el botón principal y activa las opciones al finalizar las frases.
-    /// </summary>
     private void OnSequenceEnd()
     {
         if (nextButton != null)
@@ -157,14 +173,23 @@ public class controlDialogos : MonoBehaviour
         SetActionButtonsState(true);
     }
 
-    /// <summary>
-    /// Captura la opción seleccionada y abre el panel de confirmación mostrando su detalle y costo.
-    /// </summary>
+    private void SetupActionButtons()
+    {
+        if (opciones == null) return;
+
+        foreach (OpcionBoton op in opciones)
+        {
+            if (op == null || op.boton == null) continue;
+
+            OpcionBoton seleccion = op;
+            op.boton.onClick.AddListener(() => OnOptionSelected(seleccion));
+        }
+    }
+
     private void OnOptionSelected(OpcionBoton opcion)
     {
         opcionSeleccionada = opcion;
 
-        // Determinar el nombre a mostrar (prioriza descripcionOp, luego el texto del botón o su nombre)
         string nombreMostrar = string.IsNullOrEmpty(opcion.descripcionOp)
             ? (opcion.boton.GetComponentInChildren<TextMeshProUGUI>() != null
                 ? opcion.boton.GetComponentInChildren<TextMeshProUGUI>().text
@@ -176,7 +201,6 @@ public class controlDialogos : MonoBehaviour
             confirmationText.text = $"Escoges {nombreMostrar}";
         }
 
-        // Formatear y mostrar el costo o ingreso con colores HTML
         if (costText != null)
         {
             int montoAbsoluto = Mathf.Abs(opcion.monto);
@@ -201,9 +225,6 @@ public class controlDialogos : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Cierra el panel de confirmación para cambiar de elección.
-    /// </summary>
     public void CloseConfirmationPanel()
     {
         if (confirmationPanel != null)
@@ -212,9 +233,6 @@ public class controlDialogos : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Aplica la transacción directamente al GestorBancario (guardando en el JSON) sin cambiar de escena.
-    /// </summary>
     public void SaveToJSONOnly()
     {
         if (opcionSeleccionada != null && gestorBancario != null)
@@ -223,29 +241,34 @@ public class controlDialogos : MonoBehaviour
 
             if (opcionSeleccionada.monto > 0)
             {
-                // Registra el ingreso en el JSON
-                gestorBancario.AgregarTransaccion(montoAbsoluto, opcionSeleccionada.descripcionOp, true);
+                gestorBancario.AgregarTransaccion(
+                    montoAbsoluto,
+                    opcionSeleccionada.descripcionOp,
+                    true
+                );
             }
             else if (opcionSeleccionada.monto < 0)
             {
-                // Registra el gasto en el JSON
-                gestorBancario.AgregarTransaccion(montoAbsoluto, opcionSeleccionada.descripcionOp, false);
+                gestorBancario.AgregarTransaccion(
+                    montoAbsoluto,
+                    opcionSeleccionada.descripcionOp,
+                    false
+                );
             }
 
-            Debug.Log($"Transacción guardada correctamente en JSON: {opcionSeleccionada.descripcionOp} (${opcionSeleccionada.monto})");
+            Debug.Log("TransacciÃ³n guardada correctamente en JSON: "
+                + opcionSeleccionada.descripcionOp);
         }
         else
         {
-            Debug.LogWarning("No se pudo guardar: GestorBancario no asignado o no se seleccionó ninguna opción.");
+            Debug.LogWarning(
+                "No se pudo guardar: GestorBancario no asignado o no se seleccionÃ³ ninguna opciÃ³n."
+            );
         }
 
-        // Cerrar el panel tras registrar la transacción
         CloseConfirmationPanel();
     }
 
-    /// <summary>
-    /// Cambia la visibilidad de los botones de opciones.
-    /// </summary>
     private void SetActionButtonsState(bool state)
     {
         if (opciones == null) return;
@@ -261,8 +284,18 @@ public class controlDialogos : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (nextButton != null) nextButton.onClick.RemoveListener(AdvanceText);
-        if (backButton != null) backButton.onClick.RemoveListener(CloseConfirmationPanel);
-        if (confirmNextButton != null) confirmNextButton.onClick.RemoveListener(SaveToJSONOnly);
+        if (escrituraCoroutine != null)
+        {
+            StopCoroutine(escrituraCoroutine);
+        }
+
+        if (nextButton != null)
+            nextButton.onClick.RemoveListener(AdvanceText);
+
+        if (backButton != null)
+            backButton.onClick.RemoveListener(CloseConfirmationPanel);
+
+        if (confirmNextButton != null)
+            confirmNextButton.onClick.RemoveListener(SaveToJSONOnly);
     }
 }
