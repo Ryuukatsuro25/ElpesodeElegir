@@ -45,6 +45,9 @@ public class GestorPanelesLunes : MonoBehaviour
     [SerializeField] private GameObject panelTercerAlmuerzoCostoso;
     [SerializeField] private GameObject panelCuartoAlmuerzoCostoso;
 
+    [Header("Sistema bancario")]
+    [SerializeField] private GestorBancario gestorBancario;
+
     [Header("Panel inicial opcional")]
     [SerializeField] private GameObject panelInicial;
 
@@ -52,6 +55,11 @@ public class GestorPanelesLunes : MonoBehaviour
 
     private void Start()
     {
+        if (gestorBancario == null)
+        {
+            gestorBancario = FindObjectOfType<GestorBancario>();
+        }
+
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
@@ -175,6 +183,11 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrAPanelBancoAlmuerzoBarato()
     {
+        RegistrarGastoAlmuerzo(
+            18000,
+            "Almuerzo barato con Juan"
+        );
+
         MostrarPanel(panelBancoAlmuerzoBarato);
     }
 
@@ -233,6 +246,11 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrAPanelBancoAlmuerzoCostoso()
     {
+        RegistrarGastoAlmuerzo(
+            30000,
+            "Almuerzo costoso con Juan"
+        );
+
         MostrarPanel(panelBancoAlmuerzoCostoso);
     }
 
@@ -249,6 +267,27 @@ public class GestorPanelesLunes : MonoBehaviour
     public void IrAPanelCuartoAlmuerzoCostoso()
     {
         MostrarPanel(panelCuartoAlmuerzoCostoso);
+    }
+
+    // REGISTRO DE GASTOS
+
+    private void RegistrarGastoAlmuerzo(int monto, string descripcion)
+    {
+        if (gestorBancario == null)
+        {
+            Debug.LogWarning(
+                "No se encontró el GestorBancario. No se registró el almuerzo."
+            );
+            return;
+        }
+
+        gestorBancario.AgregarTransaccion(
+            monto,
+            descripcion,
+            false
+        );
+
+        Debug.Log("Gasto registrado: " + descripcion + " -$" + monto);
     }
 
     // VOLVER AL PANEL INICIAL

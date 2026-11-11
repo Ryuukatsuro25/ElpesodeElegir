@@ -1405,6 +1405,7 @@ MonoBehaviour:
   panelSegundoAlmuerzoCostoso: {fileID: 2001161069}
   panelTercerAlmuerzoCostoso: {fileID: 1799985572}
   panelCuartoAlmuerzoCostoso: {fileID: 1855524718}
+  gestorBancario: {fileID: 0}
   panelInicial: {fileID: 630992975214272228}
 --- !u!4 &89639791
 Transform:
