@@ -46,18 +46,26 @@ public class GestorPanelesLunes : MonoBehaviour
     [SerializeField] private GameObject panelTercerAlmuerzoCostoso;
     [SerializeField] private GameObject panelCuartoAlmuerzoCostoso;
 
+    [Header("Maquina de Goldberg")]
+    [SerializeField] private GameObject decisionMaquinaGoldberg;
+    [SerializeField] private GameObject resultadoComprarGoldberg;
+    [SerializeField] private GameObject resultadoImprovisarGoldberg;
+
     [Header("Sistema bancario")]
     [SerializeField] private GestorBancario gestorBancario;
 
+    [Header("Sistema de bienestar")]
+    [SerializeField] private PopUpManagerLunes gestorBienestar;
+
     [Header("Textos bancarios - Almuerzo barato")]
-    [SerializeField] private TextMeshProUGUI saldoBarato;
-    [SerializeField] private TextMeshProUGUI ingresosBarato;
-    [SerializeField] private TextMeshProUGUI gastosBarato;
+    [SerializeField] private TMP_Text saldoBarato;
+    [SerializeField] private TMP_Text ingresosBarato;
+    [SerializeField] private TMP_Text gastosBarato;
 
     [Header("Textos bancarios - Almuerzo costoso")]
-    [SerializeField] private TextMeshProUGUI saldoCostoso;
-    [SerializeField] private TextMeshProUGUI ingresosCostoso;
-    [SerializeField] private TextMeshProUGUI gastosCostoso;
+    [SerializeField] private TMP_Text saldoCostoso;
+    [SerializeField] private TMP_Text ingresosCostoso;
+    [SerializeField] private TMP_Text gastosCostoso;
 
     [Header("Panel inicial opcional")]
     [SerializeField] private GameObject panelInicial;
@@ -71,10 +79,22 @@ public class GestorPanelesLunes : MonoBehaviour
             gestorBancario = FindObjectOfType<GestorBancario>();
         }
 
+        if (gestorBienestar == null)
+        {
+            gestorBienestar = FindObjectOfType<PopUpManagerLunes>();
+        }
+
         if (gestorBancario == null)
         {
             Debug.LogWarning(
                 "GestorPanelesLunes: no se encontró GestorBancario en la escena."
+            );
+        }
+
+        if (gestorBienestar == null)
+        {
+            Debug.LogWarning(
+                "GestorPanelesLunes: no se encontró PopUpManagerLunes en la escena."
             );
         }
 
@@ -134,7 +154,12 @@ public class GestorPanelesLunes : MonoBehaviour
             panelBancoAlmuerzoCostoso,
             panelSegundoAlmuerzoCostoso,
             panelTercerAlmuerzoCostoso,
-            panelCuartoAlmuerzoCostoso
+            panelCuartoAlmuerzoCostoso,
+
+            // Paneles de la maquina de Goldberg
+            decisionMaquinaGoldberg,
+            resultadoComprarGoldberg,
+            resultadoImprovisarGoldberg
         };
 
         foreach (GameObject panel in paneles)
@@ -293,6 +318,58 @@ public class GestorPanelesLunes : MonoBehaviour
         MostrarPanel(panelCuartoAlmuerzoCostoso);
     }
 
+    // MAQUINA DE GOLDBERG
+
+    public void IrADecisionMaquinaGoldberg()
+    {
+        MostrarPanel(decisionMaquinaGoldberg);
+    }
+
+    // OPCION 1: COMPRAR MATERIALES
+
+    public void ElegirComprarMateriales()
+    {
+        if (gestorBancario == null)
+        {
+            Debug.LogWarning(
+                "No se encontró GestorBancario. No se registró la compra."
+            );
+            return;
+        }
+
+        gestorBancario.AgregarTransaccion(
+            15000,
+            "Materiales para maquina de Goldberg",
+            false
+        );
+
+        Debug.Log(
+            "Compra de materiales para Goldberg registrada: -$15.000"
+        );
+
+        MostrarPanel(resultadoComprarGoldberg);
+    }
+
+    // OPCION 2: IMPROVISAR
+
+    public void ElegirImprovisar()
+    {
+        if (gestorBienestar == null)
+        {
+            Debug.LogWarning(
+                "No se encontró PopUpManagerLunes. No se aplicó el cambio de bienestar."
+            );
+            return;
+        }
+
+        gestorBienestar.AplicarCambioBienestar(
+            -7,
+            "Improvisaste los materiales. Tu bienestar disminuyó 7 puntos."
+        );
+
+        MostrarPanel(resultadoImprovisarGoldberg);
+    }
+
     // REGISTRO DE GASTOS
 
     private void RegistrarGastoAlmuerzo(int monto, string descripcion)
@@ -326,9 +403,9 @@ public class GestorPanelesLunes : MonoBehaviour
             return;
         }
 
-        TextMeshProUGUI textoSaldo;
-        TextMeshProUGUI textoIngresos;
-        TextMeshProUGUI textoGastos;
+        TMP_Text textoSaldo;
+        TMP_Text textoIngresos;
+        TMP_Text textoGastos;
 
         if (almuerzoBarato)
         {
