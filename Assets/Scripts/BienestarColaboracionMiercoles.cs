@@ -1,4 +1,4 @@
-
+using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -195,8 +195,18 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         // Guarda las decisiones y el estado local.
         GuardarProgreso();
 
+        if (SistemaBienestarSemanal.BienestarEnCero() && !SistemaBienestarSemanal.DesmayoYaMostrado())
+        {
+              SistemaBienestarSemanal.RegistrarDesmayo();
+
+              Debug.Log("Bienestar en cero. Fin de la partida.");
+
+              SceneManager.LoadScene("FinDeJuego");
+              return;
+        }
+
         Debug.Log(
-            "Bienestar semanal actualizado desde miércoles: "
+            "Bienestar semanal actualizado desde miercoles: "
             + bienestarActual
         );
     }

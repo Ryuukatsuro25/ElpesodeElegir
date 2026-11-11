@@ -6738,7 +6738,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   barraBienestar: {fileID: 612442547}
   bienestarInicial: 50
-  perdidaPedirCopia: 15
+  perdidaPedirCopia: 50
   perdidaEntregarIncompleta: 3
   duracionAnimacion: 1.5
   textoRetroalimentacion: {fileID: 1214982016}

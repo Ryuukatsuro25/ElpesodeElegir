@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BienestarDecisionesViernes : MonoBehaviour
 {
@@ -50,19 +51,28 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     private void Start()
     {
-        if (!estadoInicializado)
+        // Garantizar que exista el indicador semanal.
+        SistemaBienestarSemanal.InicializarSiNoExiste();
+
+        // Recuperar la decision si ya habia sido registrada.
+        if (PlayerPrefs.GetInt(CLAVE_DECISION_REGISTRADA, 0) == 1)
+        {
+            CargarProgreso();
+        }
+        else
         {
             InicializarNuevoProgreso();
         }
     }
 
     // ==========================================
-    // INICIALIZAR PARTIDA NUEVA
+    // INICIALIZAR PARTIDA
     // ==========================================
 
     public void InicializarNuevoProgreso()
     {
-        bienestarActual = Mathf.Clamp(bienestarInicial, 0f, 100f);
+        // Utilizar el bienestar acumulado de toda la semana.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
 
         decisionActual = TipoDecision.Ninguna;
         decisionRegistrada = false;
@@ -85,7 +95,6 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void PrepararDecision()
     {
-        // No borrar una decision que ya fue registrada.
         if (decisionRegistrada)
         {
             DesbloquearSiguiente();
@@ -106,7 +115,8 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void RegistrarPedirCopia()
     {
-        if (decisionRegistrada) return;
+        if (decisionRegistrada)
+            return;
 
         decisionRegistrada = true;
         decisionActual = TipoDecision.PedirCopia;
@@ -125,7 +135,8 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void RegistrarEntregarIncompleta()
     {
-        if (decisionRegistrada) return;
+        if (decisionRegistrada)
+            return;
 
         decisionRegistrada = true;
         decisionActual = TipoDecision.EntregarIncompleta;
@@ -139,18 +150,16 @@ public class BienestarDecisionesViernes : MonoBehaviour
     }
 
     // ==========================================
-    // APLICAR CAMBIO DE BIENESTAR
+    // APLICAR CAMBIO DE BIENESTAR SEMANAL
     // ==========================================
 
     private void AplicarCambioBienestar(float perdida)
     {
-        float bienestarAnterior = bienestarActual;
+        float bienestarAnterior =
+            SistemaBienestarSemanal.ObtenerBienestar();
 
-        bienestarActual = Mathf.Clamp(
-            bienestarActual - perdida,
-            0f,
-            100f
-        );
+        // Aplicar la perdida al indicador compartido.
+        bienestarActual = SistemaBienestarSemanal.AplicarCambio(-perdida);
 
         float puntosPerdidos = bienestarAnterior - bienestarActual;
 
@@ -274,8 +283,23 @@ public class BienestarDecisionesViernes : MonoBehaviour
         // Aplicar la consecuencia una sola vez.
         AplicarCambioBienestar(perdida);
 
-        // Guardar inmediatamente el resultado de la decision.
+        // Guardar inmediatamente la decision.
         GuardarProgreso();
+
+        // Comprobar si el bienestar llego a cero.
+        if (SistemaBienestarSemanal.BienestarEnCero() &&
+            !SistemaBienestarSemanal.DesmayoYaMostrado())
+        {
+            SistemaBienestarSemanal.RegistrarDesmayo();
+
+            Debug.Log(
+                "Bienestar semanal en cero. Fin de la partida."
+            );
+
+            SceneManager.LoadScene("FinDeJuego");
+
+            yield break;
+        }
 
         // Esperar la animacion de la barra.
         yield return new WaitForSeconds(duracionAnimacion);
@@ -337,6 +361,9 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void GuardarProgreso()
     {
+        // El indicador semanal es la fuente principal.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
+
         PlayerPrefs.SetFloat(
             CLAVE_BIENESTAR,
             bienestarActual
@@ -355,7 +382,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log(
-            "Viernes: progreso guardado. Bienestar: "
+            "Viernes: progreso guardado. Bienestar semanal: "
             + bienestarActual
             + " | Decision: "
             + decisionActual
@@ -368,16 +395,8 @@ public class BienestarDecisionesViernes : MonoBehaviour
 
     public void CargarProgreso()
     {
-        bienestarActual = PlayerPrefs.GetFloat(
-            CLAVE_BIENESTAR,
-            bienestarInicial
-        );
-
-        bienestarActual = Mathf.Clamp(
-            bienestarActual,
-            0f,
-            100f
-        );
+        // Recuperar el bienestar compartido.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
 
         int decisionGuardada = PlayerPrefs.GetInt(
             CLAVE_DECISION,
@@ -414,7 +433,7 @@ public class BienestarDecisionesViernes : MonoBehaviour
             BloquearSiguiente();
 
         Debug.Log(
-            "Viernes: progreso recuperado. Bienestar: "
+            "Viernes: progreso recuperado. Bienestar semanal: "
             + bienestarActual
             + " | Decision: "
             + decisionActual
