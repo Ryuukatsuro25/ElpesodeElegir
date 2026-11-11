@@ -24,6 +24,8 @@ public class NuevaPartidaSemanal : MonoBehaviour
         // Eliminar checkpoint semanal.
         SistemaGuardadoSemanal.EliminarCheckpoint();
 
+        SistemaBienestarSemanal.Reiniciar();
+
         // Eliminar progreso del miercoles.
         PlayerPrefs.DeleteKey("Miercoles_Bienestar");
         PlayerPrefs.DeleteKey("Miercoles_AyudaRegistrada");

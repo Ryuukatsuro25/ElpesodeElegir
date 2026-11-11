@@ -42,7 +42,6 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     private bool ayudaRegistrada;
     private bool decisionNoPreguntarRegistrada;
 
-
     // Claves de guardado
     private const string CLAVE_BIENESTAR = "Miercoles_Bienestar";
     private const string CLAVE_AYUDA = "Miercoles_AyudaRegistrada";
@@ -52,6 +51,9 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
     private void Start()
     {
+        // Garantiza que exista el indicador semanal.
+        SistemaBienestarSemanal.InicializarSiNoExiste();
+
         if (PlayerPrefs.GetInt(CLAVE_ESTADO_GUARDADO, 0) == 1)
         {
             CargarProgreso();
@@ -63,14 +65,15 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     }
 
     // ==========================================
-    // INICIALIZAR PARTIDA NUEVA
+    // INICIALIZAR PROGRESO
     // ==========================================
 
     public void InicializarNuevoProgreso()
     {
-        bienestarActual = Mathf.Clamp(
-            bienestarInicial, 0f, 100f
-        );
+        // IMPORTANTE:
+        // No reiniciar el bienestar semanal a 50.
+        // Se conserva el valor acumulado de los días anteriores.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
 
         ayudaRegistrada = false;
         decisionNoPreguntarRegistrada = false;
@@ -91,7 +94,6 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
     public void PrepararDecision()
     {
-        // No reiniciar una decision ya registrada.
         if (ayudaRegistrada || decisionNoPreguntarRegistrada)
         {
             decisionTomada = true;
@@ -146,7 +148,7 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     }
 
     // ==========================================
-    // APLICAR CAMBIO DE BIENESTAR
+    // APLICAR CAMBIO DE BIENESTAR SEMANAL
     // ==========================================
 
     private void AplicarCambioBienestar(
@@ -157,11 +159,8 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
     {
         float bienestarAnterior = bienestarActual;
 
-        bienestarActual = Mathf.Clamp(
-            bienestarActual + cambio,
-            0f,
-            100f
-        );
+        // Aplicar el cambio al indicador compartido.
+        bienestarActual = SistemaBienestarSemanal.AplicarCambio(cambio);
 
         float diferencia = Mathf.Abs(
             bienestarActual - bienestarAnterior
@@ -193,8 +192,13 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
         ActualizarBotonSiguiente();
 
-        // Guardar inmediatamente la consecuencia y la decision.
+        // Guarda las decisiones y el estado local.
         GuardarProgreso();
+
+        Debug.Log(
+            "Bienestar semanal actualizado desde miércoles: "
+            + bienestarActual
+        );
     }
 
     // ==========================================
@@ -333,6 +337,9 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
     public void GuardarProgreso()
     {
+        // Guardar el valor semanal como referencia local.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
+
         PlayerPrefs.SetFloat(
             CLAVE_BIENESTAR,
             bienestarActual
@@ -361,7 +368,7 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
         PlayerPrefs.Save();
 
         Debug.Log(
-            "Miercoles guardado. Bienestar: "
+            "Miercoles guardado. Bienestar semanal: "
             + bienestarActual
             + " | Pregunto: "
             + ayudaRegistrada
@@ -376,16 +383,8 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
 
     public void CargarProgreso()
     {
-        bienestarActual = PlayerPrefs.GetFloat(
-            CLAVE_BIENESTAR,
-            bienestarInicial
-        );
-
-        bienestarActual = Mathf.Clamp(
-            bienestarActual,
-            0f,
-            100f
-        );
+        // Recuperar el valor compartido, no el valor local antiguo.
+        bienestarActual = SistemaBienestarSemanal.ObtenerBienestar();
 
         ayudaRegistrada = PlayerPrefs.GetInt(
             CLAVE_AYUDA,
@@ -409,7 +408,7 @@ public class BienestarColaboracionMiercoles : MonoBehaviour
             textoRetroalimentacion.gameObject.SetActive(false);
 
         Debug.Log(
-            "Miercoles recuperado. Bienestar: "
+            "Miercoles recuperado. Bienestar semanal: "
             + bienestarActual
             + " | Pregunto: "
             + ayudaRegistrada
