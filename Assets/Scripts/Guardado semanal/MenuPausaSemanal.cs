@@ -12,6 +12,7 @@ public class MenuPausaSemanal : MonoBehaviour
     [SerializeField] private bool cerrarAlIniciar = true;
 
     [Header("Guardado de cada dia")]
+    [SerializeField] private PanelFlowManager gestorMartes;
     [SerializeField] private GestorPanelesLunes gestorLunes;
     [SerializeField] private GestorPanelesMiercoles gestorMiercoles;
     [SerializeField] private GestorPanelesViernes gestorViernes;
@@ -33,15 +34,30 @@ public class MenuPausaSemanal : MonoBehaviour
 
     public void AbrirPanel()
     {
-        if (panelPausa == null) return;
+        Debug.Log("PRUEBA: SE PRESIONÓ EL BOTÓN DE PAUSA");
+        
+        if (panelPausa == null) 
+        {
+        Debug.LogError("ERROR: NO SE HA ASIGNADO EL PANEL DE PAUSA");
+        return;
+        }
+
+        Debug.Log("2. OBJETO ASIGNADO: " + panelPausa.name);
 
         panelPausa.SetActive(true);
+
+        Debug.Log("3. ESTADO DESPUÉS DE ACTIVAR: " +
+        panelPausa.activeSelf);
+
+        Debug.Log("4. ESTADO EN JERARQUÍA: " +
+        panelPausa.activeInHierarchy);
+
         panelPausa.transform.SetAsLastSibling();
 
         Time.timeScale = 0f;
         juegoPausado = true;
 
-        Debug.Log("Menu de pausa abierto");
+        Debug.Log("PRUEBA: PANEL DE PAUSA ACTIVADO");
     }
 
     public void CerrarPanel()
@@ -72,43 +88,47 @@ public class MenuPausaSemanal : MonoBehaviour
     {
         bool progresoGuardado = false;
 
-    // LUNES
-    if (gestorLunes != null)
-    {
-        gestorLunes.GuardarProgreso();
-        progresoGuardado = true;
-    }
+        // MARTES
+        if (gestorMartes != null)
+        {
+            gestorMartes.GuardarProgreso();
+            progresoGuardado = true;
+        }
+        // LUNES
+        else if (gestorLunes != null)
+        {
+            gestorLunes.GuardarProgreso();
+            progresoGuardado = true;
+        }
+        // MIERCOLES
+        else if (gestorMiercoles != null)
+        {
+            gestorMiercoles.GuardarProgreso();
+            progresoGuardado = true;
+        }
+        // VIERNES
+        else if (gestorViernes != null)
+        {
+            gestorViernes.GuardarProgreso();
+            progresoGuardado = true;
+        }
 
-    // MIERCOLES
-    else if (gestorMiercoles != null)
-    {
-        gestorMiercoles.GuardarProgreso();
-        progresoGuardado = true;
-    }
+        if (!progresoGuardado)
+        {
+            Debug.LogError(
+                "No se encontro el gestor de progreso de esta escena."
+            );
+            return;
+        }
 
-    // VIERNES
-    else if (gestorViernes != null)
-    {
-        gestorViernes.GuardarProgreso();
-        progresoGuardado = true;
-    }
+        SistemaGuardadoSemanal.GuardarTodo();
 
-    if (!progresoGuardado)
-    {
-        Debug.LogError(
-            "No se encontro el gestor de progreso de esta escena."
-        );
-        return;
-    }
+        Debug.Log("Progreso guardado correctamente.");
 
-    SistemaGuardadoSemanal.GuardarTodo();
+        Time.timeScale = 1f;
+        juegoPausado = false;
 
-    Debug.Log("Progreso guardado correctamente.");
-
-    Time.timeScale = 1f;
-    juegoPausado = false;
-
-    SceneManager.LoadScene(escenaMenuPrincipal);
+        SceneManager.LoadScene(escenaMenuPrincipal);
     }
 
     public void SalirAlMenuPrincipal()
@@ -120,9 +140,9 @@ public class MenuPausaSemanal : MonoBehaviour
     }
 
     public void ComprobarEstadoJuego()
-{
-    Debug.Log("TIME SCALE: " + Time.timeScale);
-    Debug.Log("MENU PAUSA ACTIVO: " +
-        (panelPausa != null && panelPausa.activeSelf));
-}
+    {
+        Debug.Log("TIME SCALE: " + Time.timeScale);
+        Debug.Log("MENU PAUSA ACTIVO: " +
+            (panelPausa != null && panelPausa.activeSelf));
+    }
 }
