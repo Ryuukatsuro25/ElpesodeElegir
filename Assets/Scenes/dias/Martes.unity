@@ -2198,6 +2198,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 087cfa23d5e0f7a439142d498ad890a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  panelActual: {fileID: 0}
+  panelesDelMartes: []
 --- !u!4 &142399027
 Transform:
   m_ObjectHideFlags: 0
