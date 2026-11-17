@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -16,7 +17,9 @@ namespace PesoDeElegir.EventosImprevistos
     /// para procesar los eventos definidos en un JSON ("Computador", "Cumpleaños", "Vecina").
     ///
     ///  - Lee los eventos de un TextAsset (EventosImprevistos.json).
-    ///  - Los ejecuta en orden aleatorio, uno tras otro, en la misma escena.
+    ///  - Los sortea en orden aleatorio, pero cada vez que se entra a la escena muestra UNO solo:
+    ///    pre-decisión → decisión → consecuencia. Al pulsar Continuar el evento queda bloqueado
+    ///    (no se repite) y el juego sigue a la escena siguiente.
     ///  - Asigna el texto de cada opción a su botón; al elegir, ese botón muestra la opción elegida.
     ///  - Cada decisión cambia dinero y/o bienestar y se guarda al instante con GuardadoJuego
     ///    (datosBancarios.json y datosBienestar.json, mismo formato que el resto del juego).
@@ -183,13 +186,22 @@ namespace PesoDeElegir.EventosImprevistos
         [Tooltip("Pone Scale (1,1,1) en los paneles, cuadros, botones y textos SIN cambiar lo que se ve: " +
                  "pasa la escala al Width/Height. Arregla las letras estiradas.")]
         [SerializeField] private bool corregirEscalasAlIniciar = true;
+        [Tooltip("Acomoda los textos del panel de consecuencia uno debajo del otro dentro del cuadro naranja " +
+                 "(texto, frase del personaje, dinero, bienestar y Continuar) para que no se encimen.")]
+        [SerializeField] private bool acomodarPanelConsecuencia = true;
 
         [Header("Fin y conexiones con otros sistemas")]
         [SerializeField] private GameObject panelFin;
         [Tooltip("Opcional: conecta aquí MedallasManager.DesbloquearMedalla para mostrar su notificación")]
         [SerializeField] private UnityEvent<string> alDesbloquearMedalla;
-        [Tooltip("Lo que sigue al terminar los tres eventos")]
+        [Tooltip("Lo que sigue al terminar el evento (además de cambiar de escena)")]
         [SerializeField] private UnityEvent alTerminarEventos;
+        [Tooltip("Escena que se carga al terminar el evento (nombre exacto y en Build Settings). " +
+                 "Si al jugador lo trajo un botón con IrAEventoImprevisto, manda la escena de ese botón. " +
+                 "Vacío y sin botón: se queda en esta escena mostrando el Panel Fin.")]
+        [SerializeField] private string escenaAlTerminar = "";
+        [Tooltip("Espera antes de cambiar de escena (deja ver cómo se mueven las barras)")]
+        [SerializeField, Min(0f)] private float segundosAntesDeCambiarEscena = 0.3f;
 
         // =====================================================================
         //  ESTADO INTERNO
@@ -204,7 +216,7 @@ namespace PesoDeElegir.EventosImprevistos
         private readonly Queue<EventoDatos> colaEventos = new();
         private readonly Dictionary<GameObject, GameObject> contenedores = new();
         private bool[] opcionDisponible = Array.Empty<bool>();
-        private bool cobroActivadoEnEsteEvento;
+        private bool terminado;
         private float rellenoObjetivo;          // bienestar 0..1
         private float rellenoIngresosObjetivo;  // saldo / saldo máximo de la partida 0..1
         private Coroutine rutinaDecision;
@@ -219,6 +231,7 @@ namespace PesoDeElegir.EventosImprevistos
             if (!ValidarJerarquia()) return;
             if (corregirEscalasAlIniciar) CorregirEscalas();
             if (forzarTextosDentroDelCuadro) ConfigurarTextos();
+            if (acomodarPanelConsecuencia) AcomodarPanelConsecuencia();
 
             DesactivarOnClickDelInspector();
             CalcularContenedores();
@@ -233,7 +246,7 @@ namespace PesoDeElegir.EventosImprevistos
 
             CargarProgreso();
             PrepararCola();
-            SiguientePaso();
+            IniciarVisita();
         }
 
         private void Update()
@@ -358,59 +371,92 @@ namespace PesoDeElegir.EventosImprevistos
                 if (!progreso.completados.Contains(id)) colaEventos.Enqueue(porId[id]);
 
             if (colaEventos.Count == 0 && !progreso.cobroPendiente)
-                Debug.LogWarning("MotorEventos: los eventos de esta partida ya se jugaron. Para volver a probarlos: " +
-                                 "clic derecho en el componente → 'Pruebas/Reiniciar progreso de los eventos'.");
+                Debug.LogWarning("MotorEventos: los eventos de esta partida ya se jugaron (están bloqueados). " +
+                                 "Para volver a probarlos: clic derecho en el componente → 'Pruebas/Reiniciar progreso de los eventos'.");
         }
 
         // =====================================================================
-        //  FLUJO: evento → (cobro diferido) → evento → … → fin
+        //  FLUJO DE UNA VISITA: pre-decisión → decisión → consecuencia → fin
         // =====================================================================
 
-        private void SiguientePaso()
+        /// <summary>
+        /// Cada vez que se entra a la escena se juega UN solo evento (el siguiente del orden sorteado).
+        /// Si quedó un cobro de "Pedir prestado" de la visita anterior, se cobra aquí y se cuenta como
+        /// la primera pantalla de la pre-decisión (no agrega pantallas extra).
+        /// </summary>
+        private void IniciarVisita()
         {
-            // El cobro se hace en una pantalla POSTERIOR: no justo después de pedir prestado,
-            // sino antes del siguiente evento (o al final si ya no quedan eventos).
-            bool puedeCobrarse = !cobroActivadoEnEsteEvento || colaEventos.Count == 0;
-            cobroActivadoEnEsteEvento = false;
-
-            if (progreso.cobroPendiente && puedeCobrarse)
-            {
-                EjecutarCobroDiferido();
-                return;
-            }
+            string avisoCobro = progreso.cobroPendiente ? EjecutarCobroDiferido() : null;
 
             if (colaEventos.Count == 0)
             {
-                OcultarPaneles();
-                if (panelFin != null) MostrarSolo(panelFin);
-                alTerminarEventos?.Invoke();
+                // Ya no hay eventos: si hubo cobro se muestra como consecuencia; si no, se sigue de largo
+                if (!string.IsNullOrEmpty(avisoCobro))
+                    MostrarConsecuencia(avisoCobro, datos.cobroDiferido.monto, datos.cobroDiferido.bienestar, null, Terminar);
+                else
+                    Terminar();
                 return;
             }
 
             EventoDatos evento = colaEventos.Dequeue();
-            MostrarNarrativa(evento.pantallasIntro, () => MostrarDecision(evento));
+
+            var preDecision = new List<string>();
+            if (!string.IsNullOrEmpty(avisoCobro)) preDecision.Add(avisoCobro);
+            if (evento.pantallasIntro != null) preDecision.AddRange(evento.pantallasIntro);
+
+            MostrarNarrativa(preDecision, () => MostrarDecision(evento));
         }
 
-        private void EjecutarCobroDiferido()
+        /// <summary>Aplica el cobro pendiente y devuelve su texto (null si no hay cobro definido).</summary>
+        private string EjecutarCobroDiferido()
         {
             CobroDiferidoDatos cobro = datos.cobroDiferido;
+            progreso.cobroPendiente = false;
 
             if (cobro == null)
             {
                 Debug.LogWarning("MotorEventos: hay un cobro pendiente pero el JSON no define 'cobroDiferido'.");
-                progreso.cobroPendiente = false;
                 GuardarProgreso();
-                SiguientePaso();
-                return;
+                return null;
             }
 
             AplicarDinero(cobro.monto, cobro.descripcionMovimiento);
             AplicarBienestar(cobro.bienestar);
-            progreso.cobroPendiente = false;
             GuardarProgreso();
+            return cobro.texto;
+        }
 
-            // El cobro mueve el saldo, pero no es una decisión del personaje: sin mensaje GM1.1.4
-            MostrarConsecuencia(cobro.texto, cobro.monto, cobro.bienestar, null, SiguientePaso);
+        /// <summary>Fin de la visita: el evento ya quedó bloqueado en progresoEventos.json.</summary>
+        private void Terminar()
+        {
+            if (terminado) return;
+            terminado = true;
+
+            OcultarPaneles();
+            alTerminarEventos?.Invoke();
+
+            // Prioridad: la escena que pidió el botón que trajo al jugador (IrAEventoImprevisto),
+            // luego la del Inspector. Sin ninguna, se queda aquí con el Panel Fin.
+            string escena = IrAEventoImprevisto.TomarEscenaSiguiente();
+            if (string.IsNullOrWhiteSpace(escena)) escena = escenaAlTerminar;
+
+            if (!string.IsNullOrWhiteSpace(escena))
+                StartCoroutine(CargarEscenaTrasPausa(escena.Trim()));
+            else if (panelFin != null)
+                MostrarSolo(panelFin);
+        }
+
+        private IEnumerator CargarEscenaTrasPausa(string escena)
+        {
+            if (segundosAntesDeCambiarEscena > 0f) yield return new WaitForSeconds(segundosAntesDeCambiarEscena);
+
+            if (!Application.CanStreamedLevelBeLoaded(escena))
+            {
+                Debug.LogError($"MotorEventos: la escena '{escena}' no existe o no está en File > Build Settings.", this);
+                if (panelFin != null) MostrarSolo(panelFin);
+                yield break;
+            }
+            SceneManager.LoadScene(escena);
         }
 
         // =====================================================================
@@ -573,13 +619,10 @@ namespace PesoDeElegir.EventosImprevistos
             if (!string.IsNullOrEmpty(opcion.medalla))
                 DesbloquearMedalla(opcion.medalla);
 
-            if (opcion.activaCobroDiferido)
-            {
-                progreso.cobroPendiente = true;
-                cobroActivadoEnEsteEvento = true;
-            }
+            // "Pedir prestado": el cobro llega en la PRÓXIMA visita a esta escena
+            if (opcion.activaCobroDiferido) progreso.cobroPendiente = true;
 
-            // 2. La decisión queda guardada: si el juego se cierra, este evento no se repite
+            // 2. La decisión queda guardada y el evento BLOQUEADO: no se vuelve a mostrar
             if (!progreso.completados.Contains(evento.id)) progreso.completados.Add(evento.id);
             progreso.decisiones.Add(new DecisionTomada
             {
@@ -590,17 +633,18 @@ namespace PesoDeElegir.EventosImprevistos
             });
             GuardarProgreso();
 
-            // 3. Pantallas: todas menos la última como narrativa; la última, con los cambios
+            // 3. UNA sola pantalla de consecuencia: si el JSON trae varios textos se unen en uno
             string[] textos = opcion.consecuencias ?? Array.Empty<string>();
-            var narrativa = new List<string>();
-            for (int i = 0; i < textos.Length - 1; i++) narrativa.Add(textos[i]);
-            string ultimo = textos.Length > 0 ? textos[textos.Length - 1] : string.Empty;
+            var partes = new List<string>();
+            foreach (string t in textos)
+                if (!string.IsNullOrWhiteSpace(t)) partes.Add(t.Trim());
+            string textoFinal = string.Join("\n\n", partes);
 
             // GM1.1.4: el mensaje en primera persona solo si la opción movió el saldo
             string mensaje = opcion.monto != 0 ? opcion.mensajePersonaje : null;
 
-            MostrarNarrativa(narrativa, () =>
-                MostrarConsecuencia(ultimo, opcion.monto, cambioBienestar, mensaje, SiguientePaso));
+            // Continuar → se termina el evento (no hay ciclo hacia otro evento)
+            MostrarConsecuencia(textoFinal, opcion.monto, cambioBienestar, mensaje, Terminar);
         }
 
         /// <summary>
@@ -1210,6 +1254,73 @@ namespace PesoDeElegir.EventosImprevistos
                       "(ahora Scale = 1, mismo tamaño en pantalla).", raiz);
         }
 
+        // =====================================================================
+        //  PANEL DE CONSECUENCIA EN FRANJAS (los textos no se encimen)
+        // =====================================================================
+
+        /// <summary>
+        /// Ubica cada elemento del panel de consecuencia en su propia franja dentro del cuadro donde
+        /// está el texto principal (el cuadro naranja). Son proporciones del cuadro, así funciona en
+        /// cualquier resolución:
+        ///
+        ///   96% ┌──────────────────────────────┐
+        ///       │ Texto de la consecuencia     │
+        ///   46% ├──────────────────────────────┤
+        ///       │ Frase del personaje (GM1.1.4)│
+        ///   31% ├──────────────┬───────────────┤
+        ///       │  -$30.000    │  -14 SANIDAD  │
+        ///   18% ├──────────────┴───────────────┤
+        ///       │        [ Continuar ]         │
+        ///    3% └──────────────────────────────┘
+        /// </summary>
+        private void AcomodarPanelConsecuencia()
+        {
+            if (textoConsecuencia == null || !(textoConsecuencia.rectTransform.parent is RectTransform cuadro)) return;
+            if (cuadro.GetComponent<LayoutGroup>() != null) return; // ahí manda el Layout Group
+
+            Colocar(textoConsecuencia.rectTransform, cuadro, 0.04f, 0.96f, 0.46f, 0.96f, TextAlignmentOptions.TopLeft);
+            if (textoMensajePersonaje != null)
+                Colocar(textoMensajePersonaje.rectTransform, cuadro, 0.04f, 0.96f, 0.31f, 0.45f, TextAlignmentOptions.Center);
+            if (textoCambioDinero != null)
+                Colocar(textoCambioDinero.rectTransform, cuadro, 0.04f, 0.49f, 0.18f, 0.30f, TextAlignmentOptions.Center);
+            if (textoCambioBienestar != null)
+                Colocar(textoCambioBienestar.rectTransform, cuadro, 0.51f, 0.96f, 0.18f, 0.30f, TextAlignmentOptions.Center);
+            if (botonContinuar != null)
+                Colocar(botonContinuar.transform as RectTransform, cuadro, 0.25f, 0.75f, 0.03f, 0.16f);
+        }
+
+        private static void Colocar(RectTransform rt, RectTransform cuadro, float xMin, float xMax, float yMin, float yMax,
+                                    TextAlignmentOptions? alineacion = null)
+        {
+            if (rt == null) return;
+
+            // Si el elemento está en otro objeto, se pasa al mismo cuadro que el texto principal
+            if (rt.parent != cuadro)
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying) UnityEditor.Undo.SetTransformParent(rt, cuadro, "Acomodar consecuencia");
+                else rt.SetParent(cuadro, false);
+#else
+                rt.SetParent(cuadro, false);
+#endif
+            }
+
+            RegistrarDeshacer(rt);
+            rt.localScale = Vector3.one;
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchorMin = new Vector2(xMin, yMin);
+            rt.anchorMax = new Vector2(xMax, yMax);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI texto = rt.GetComponent<TextMeshProUGUI>();
+            if (alineacion.HasValue && texto != null)
+            {
+                RegistrarDeshacer(texto);
+                texto.alignment = alineacion.Value;
+            }
+        }
+
         private static TextMeshProUGUI TextoDeBoton(Button boton) =>
             boton != null ? boton.GetComponentInChildren<TextMeshProUGUI>(true) : null;
 
@@ -1258,6 +1369,7 @@ namespace PesoDeElegir.EventosImprevistos
 #endif
             CorregirEscalas();
             ConfigurarTextos();
+            if (acomodarPanelConsecuencia) AcomodarPanelConsecuencia();
 
 #if UNITY_EDITOR
             foreach (UnityEngine.Object o in textos) UnityEditor.EditorUtility.SetDirty(o);
@@ -1277,6 +1389,7 @@ namespace PesoDeElegir.EventosImprevistos
         {
             GuardadoJuego.Borrar(ArchivoProgreso);
             PlayerPrefs.DeleteKey(ClaveCobroAntigua);
+            IrAEventoImprevisto.TomarEscenaSiguiente(); // borra la escena de regreso guardada
             PlayerPrefs.DeleteKey("Medalla_companerismo");
             PlayerPrefs.DeleteKey("Medalla_buena_accion");
             PlayerPrefs.Save();
