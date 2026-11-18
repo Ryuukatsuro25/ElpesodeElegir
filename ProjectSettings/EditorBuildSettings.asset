@@ -62,4 +62,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FindeJuego.unity
     guid: 3f278223a653fd1428931c8c8c06a4d6
+  - enabled: 1
+    path: Assets/Scenes/dias/jueves.unity
+    guid: a15d6193c67c63c4c8b2869636e5ba90
+  - enabled: 1
+    path: Assets/Scenes/DI.unity
+    guid: 557f1ab127020424fbd551855e3e68fa
+  - enabled: 1
+    path: Assets/Scenes/DI 1.unity
+    guid: a20ad4dd00d2a7c41a27be1422556d99
   m_configObjects: {}
