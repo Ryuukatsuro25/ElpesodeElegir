@@ -42,7 +42,7 @@ EditorBuildSettings:
     path: Assets/Scenes/dias/Miercoles.unity
     guid: 128d5a6fbfe5deb459f295094efb8860
   - enabled: 1
-    path: Assets/Scenes/dias/jueves.unity
+    path: Assets/Scenes/dias/jueves2.unity
     guid: 3d050d928a23de9448c8ae11b798bd28
   - enabled: 1
     path: Assets/Scenes/dias/viernes.unity
