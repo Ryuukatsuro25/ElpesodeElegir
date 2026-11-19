@@ -2,6 +2,7 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIBarrasController : MonoBehaviour
 {
@@ -13,14 +14,18 @@ public class UIBarrasController : MonoBehaviour
     public float dinero = 0f;
     public float dineroMaximo = 300000f;
 
-    [Header("Referencias de UI")]
+    [Header("Valores Iniciales Nueva Partida")]
+    public float bienestarInicial = 50f;
+    public float saldoInicial = 100000f;
+    public float ingresosIniciales = 300000f;
+
+    [Header("Referencias de UI (Escena Activa)")]
     public Image barraBienestarImage;
     public Image barraDineroImage;
 
     private string rutaBienestar;
     private string rutaBancarios;
 
-    // --- Estructuras para los JSON ---
     [System.Serializable]
     public class DatosBienestar
     {
@@ -49,7 +54,7 @@ public class UIBarrasController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Opcional, mantiene el controlador entre escenas si lo deseas
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -60,11 +65,39 @@ public class UIBarrasController : MonoBehaviour
         rutaBienestar = Path.Combine(Application.persistentDataPath, "datosBienestar.json");
         rutaBancarios = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
 
-        CargarDatos();
+        // Reinicia siempre al iniciar el juego para que bienestar vuelva a 100 y saldo a su valor inicial
+        ReiniciarPartida();
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ActualizarUI();
     }
 
     private void Start()
     {
+        ActualizarUI();
+    }
+
+    // Permite que cada escena (Día 1, Martes, etc.) registre sus propias imágenes de barra
+    public void AsignarReferenciasUI(Image nuevaBarraBienestar, Image nuevaBarraDinero)
+    {
+        if (nuevaBarraBienestar != null)
+            barraBienestarImage = nuevaBarraBienestar;
+
+        if (nuevaBarraDinero != null)
+            barraDineroImage = nuevaBarraDinero;
+
         ActualizarUI();
     }
 
@@ -75,7 +108,6 @@ public class UIBarrasController : MonoBehaviour
         GuardarDatosBienestar();
     }
 
-    // Método centralizado para registrar ingresos o gastos y actualizar el JSON bancario
     public void RegistrarTransaccion(string descripcion, float monto, bool esIngreso)
     {
         DatosBancarios banco = CargarDatosBancariosDesdeArchivo();
@@ -91,7 +123,6 @@ public class UIBarrasController : MonoBehaviour
             banco.gastosTotales += monto;
         }
 
-        // Manejo seguro del historial en forma de arreglo
         List<TransaccionItem> listaHistorial = new List<TransaccionItem>();
         if (banco.historial != null)
         {
@@ -107,22 +138,20 @@ public class UIBarrasController : MonoBehaviour
 
         banco.historial = listaHistorial.ToArray();
 
-        // Guardamos los cambios en el archivo JSON
         GuardarDatosBancariosEnArchivo(banco);
 
-        // Actualizamos la variable local y la UI
         dinero = banco.saldoActual;
         ActualizarUI();
     }
 
     public void ActualizarUI()
     {
-        if (barraBienestarImage != null)
+        if (barraBienestarImage != null && bienestarMaximo > 0f)
         {
-            barraBienestarImage.fillAmount = bienestarMental / bienestarMaximo;
+            barraBienestarImage.fillAmount = Mathf.Clamp01(bienestarMental / bienestarMaximo);
         }
 
-        if (barraDineroImage != null)
+        if (barraDineroImage != null && dineroMaximo > 0f)
         {
             barraDineroImage.fillAmount = Mathf.Clamp01(dinero / dineroMaximo);
         }
@@ -133,10 +162,29 @@ public class UIBarrasController : MonoBehaviour
         transform.SetAsLastSibling();
     }
 
-    // Método con parámetro para que puedas escribir el valor directamente en el Inspector
     public void PrecioGasto(float montoPersonalizado)
     {
         RegistrarTransaccion("PrecioAGastar", montoPersonalizado, false);
+    }
+
+    // Útil al iniciar una nueva partida desde el menú principal
+    public void ReiniciarPartida()
+    {
+        bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
+        dinero = saldoInicial;
+
+        GuardarDatosBienestar();
+
+        DatosBancarios bancoLimpio = new DatosBancarios
+        {
+            saldoActual = saldoInicial,
+            ingresosTotales = ingresosIniciales,
+            gastosTotales = 0f,
+            historial = new TransaccionItem[0]
+        };
+
+        GuardarDatosBancariosEnArchivo(bancoLimpio);
+        ActualizarUI();
     }
 
     private void GuardarDatosBienestar()
@@ -157,11 +205,10 @@ public class UIBarrasController : MonoBehaviour
             }
         }
 
-        // Si el archivo no existe o está corrupto, devolvemos una estructura base limpia
         return new DatosBancarios
         {
-            saldoActual = 100000f,
-            ingresosTotales = 300000f,
+            saldoActual = saldoInicial,
+            ingresosTotales = ingresosIniciales,
             gastosTotales = 0f,
             historial = new TransaccionItem[0]
         };
@@ -175,7 +222,6 @@ public class UIBarrasController : MonoBehaviour
 
     private void CargarDatos()
     {
-        // Cargar Bienestar
         if (File.Exists(rutaBienestar))
         {
             string jsonB = File.ReadAllText(rutaBienestar);
@@ -184,14 +230,13 @@ public class UIBarrasController : MonoBehaviour
         }
         else
         {
+            bienestarMental = bienestarInicial;
             GuardarDatosBienestar();
         }
 
-        // Cargar Bancarios
         DatosBancarios banco = CargarDatosBancariosDesdeArchivo();
         dinero = banco.saldoActual;
 
-        // Si no existía el archivo bancario, lo creamos con los valores iniciales correctos
         if (!File.Exists(rutaBancarios))
         {
             GuardarDatosBancariosEnArchivo(banco);
