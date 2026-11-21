@@ -9,13 +9,13 @@ public class UIBarrasController : MonoBehaviour
     public static UIBarrasController Instance;
 
     [Header("Valores de Estado")]
-    public float bienestarMental = 50f;
+    public float bienestarMental = 100f;
     public float bienestarMaximo = 100f;
-    public float dinero = 0f;
+    public float dinero = 100000f;
     public float dineroMaximo = 300000f;
 
     [Header("Valores Iniciales Nueva Partida")]
-    public float bienestarInicial = 50f;
+    public float bienestarInicial = 100f;
     public float saldoInicial = 100000f;
     public float ingresosIniciales = 300000f;
 
@@ -65,8 +65,8 @@ public class UIBarrasController : MonoBehaviour
         rutaBienestar = Path.Combine(Application.persistentDataPath, "datosBienestar.json");
         rutaBancarios = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
 
-        // Reinicia siempre al iniciar el juego para que bienestar vuelva a 100 y saldo a su valor inicial
-        ReiniciarPartida();
+        // Carga lo guardado en JSON para no perder progreso al cambiar de escena o reiniciar el singleton
+        CargarDatos();
     }
 
     private void OnEnable()
@@ -81,6 +81,10 @@ public class UIBarrasController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Limpia referencias destruidas de la escena anterior si aún no se asignan las nuevas
+        if (barraBienestarImage == null) barraBienestarImage = null;
+        if (barraDineroImage == null) barraDineroImage = null;
+
         ActualizarUI();
     }
 
@@ -89,7 +93,7 @@ public class UIBarrasController : MonoBehaviour
         ActualizarUI();
     }
 
-    // Permite que cada escena (Día 1, Martes, etc.) registre sus propias imágenes de barra
+    // Permite que cada escena (Lunes, Martes, etc.) registre sus imágenes activas
     public void AsignarReferenciasUI(Image nuevaBarraBienestar, Image nuevaBarraDinero)
     {
         if (nuevaBarraBienestar != null)
@@ -104,8 +108,8 @@ public class UIBarrasController : MonoBehaviour
     public void ModificarBienestar(float cantidad)
     {
         bienestarMental = Mathf.Clamp(bienestarMental + cantidad, 0f, bienestarMaximo);
-        ActualizarUI();
         GuardarDatosBienestar();
+        ActualizarUI();
     }
 
     public void RegistrarTransaccion(string descripcion, float monto, bool esIngreso)
@@ -167,7 +171,7 @@ public class UIBarrasController : MonoBehaviour
         RegistrarTransaccion("PrecioAGastar", montoPersonalizado, false);
     }
 
-    // Útil al iniciar una nueva partida desde el menú principal
+    // Llama este método ÚNICAMENTE desde el botón "Empezar juego" / "Nueva partida"
     public void ReiniciarPartida()
     {
         bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
@@ -226,11 +230,14 @@ public class UIBarrasController : MonoBehaviour
         {
             string jsonB = File.ReadAllText(rutaBienestar);
             DatosBienestar datosB = JsonUtility.FromJson<DatosBienestar>(jsonB);
-            if (datosB != null) bienestarMental = datosB.valor;
+            if (datosB != null)
+            {
+                bienestarMental = Mathf.Clamp(datosB.valor, 0f, bienestarMaximo);
+            }
         }
         else
         {
-            bienestarMental = bienestarInicial;
+            bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
             GuardarDatosBienestar();
         }
 
@@ -241,5 +248,7 @@ public class UIBarrasController : MonoBehaviour
         {
             GuardarDatosBancariosEnArchivo(banco);
         }
+
+        ActualizarUI();
     }
 }
