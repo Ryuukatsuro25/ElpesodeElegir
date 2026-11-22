@@ -1,8 +1,9 @@
+
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine.UI; // Necesario para el ScrollRect
+using UnityEngine.UI;
 
 [System.Serializable]
 public class Transaccion
@@ -30,12 +31,20 @@ public class GestorBancario : MonoBehaviour
     public TextMeshProUGUI textoHistorial;
 
     [Header("Scroll del Historial")]
-    public ScrollRect scrollHistorial; // Arrastra aquí tu Scroll View desde el Inspector
+    public ScrollRect scrollHistorial;
 
     private DatosBancarios datos;
     private string rutaArchivo;
 
-    void Awake()
+    // Propiedades para consultar los valores bancarios
+    // desde otros scripts sin modificar directamente los datos.
+    public int SaldoActual => datos != null ? datos.saldoActual : 0;
+
+    public int IngresosTotales => datos != null ? datos.ingresosTotales : 0;
+
+    public int GastosTotales => datos != null ? datos.gastosTotales : 0;
+
+    private void Awake()
     {
         rutaArchivo = Application.persistentDataPath + "/datosBancarios.json";
         CargarDatos();
@@ -47,18 +56,30 @@ public class GestorBancario : MonoBehaviour
         {
             string json = File.ReadAllText(rutaArchivo);
             datos = JsonUtility.FromJson<DatosBancarios>(json);
+
+            if (datos == null)
+            {
+                datos = new DatosBancarios();
+                GenerarMesadaInicial();
+            }
+
+            if (datos.historial == null)
+            {
+                datos.historial = new List<Transaccion>();
+            }
         }
         else
         {
             datos = new DatosBancarios();
             GenerarMesadaInicial();
         }
+
         ActualizarUI();
     }
 
     private void GenerarMesadaInicial()
     {
-        int multiplicador = Random.Range(8,13);
+        int multiplicador = Random.Range(8, 13);
         int montoMesada = multiplicador * 10000;
 
         Transaccion nuevaMesada = new Transaccion
@@ -77,13 +98,33 @@ public class GestorBancario : MonoBehaviour
 
     public void GuardarDatos()
     {
+        if (datos == null)
+        {
+            Debug.LogWarning("No hay datos bancarios para guardar.");
+            return;
+        }
+
         string json = JsonUtility.ToJson(datos, true);
         File.WriteAllText(rutaArchivo, json);
     }
 
     public void AgregarTransaccion(int monto, string descripcion, bool esIngreso)
     {
-        Transaccion nueva = new Transaccion { monto = monto, descripcion = descripcion, esIngreso = esIngreso };
+        if (datos == null)
+        {
+            datos = new DatosBancarios();
+        }
+
+        // Evita registrar montos negativos por error.
+        monto = Mathf.Abs(monto);
+
+        Transaccion nueva = new Transaccion
+        {
+            monto = monto,
+            descripcion = descripcion,
+            esIngreso = esIngreso
+        };
+
         datos.historial.Add(nueva);
 
         if (esIngreso)
@@ -103,22 +144,34 @@ public class GestorBancario : MonoBehaviour
 
     private void ActualizarUI()
     {
-        textoSaldoActual.text = $"${datos.saldoActual:N0}";
-        textoIngresos.text = $"+${datos.ingresosTotales:N0}";
-        textoGastos.text = $"-${datos.gastosTotales:N0}";
+        if (datos == null)
+            return;
 
-        textoHistorial.text = "";
+        if (textoSaldoActual != null)
+            textoSaldoActual.text = $"${datos.saldoActual:N0}";
 
-        for (int i = datos.historial.Count - 1; i >= 0; i--)
+        if (textoIngresos != null)
+            textoIngresos.text = $"+${datos.ingresosTotales:N0}";
+
+        if (textoGastos != null)
+            textoGastos.text = $"-${datos.gastosTotales:N0}";
+
+        if (textoHistorial != null)
         {
-            Transaccion t = datos.historial[i];
-            string colorHex = t.esIngreso ? "#32CD32" : "#FF0000";
-            string signo = t.esIngreso ? "+" : "-";
+            textoHistorial.text = "";
 
-            textoHistorial.text += $"{t.descripcion}:\n<color={colorHex}>{signo}${t.monto:N0}</color>\n\n";
+            for (int i = datos.historial.Count - 1; i >= 0; i--)
+            {
+                Transaccion t = datos.historial[i];
+
+                string colorHex = t.esIngreso ? "#32CD32" : "#FF0000";
+                string signo = t.esIngreso ? "+" : "-";
+
+                textoHistorial.text +=
+                    $"{t.descripcion}:\n<color={colorHex}>{signo}${t.monto:N0}</color>\n\n";
+            }
         }
 
-        // Fuerza a Unity a recalcular el tamaño del texto y sube el scroll al tope
         if (scrollHistorial != null)
         {
             Canvas.ForceUpdateCanvases();
@@ -131,7 +184,13 @@ public class GestorBancario : MonoBehaviour
         if (File.Exists(rutaArchivo))
         {
             File.Delete(rutaArchivo);
-            Debug.Log("Datos borrados. Reinicia el juego para ver una nueva mesada.");
+
+            Debug.Log("Datos bancarios borrados.");
+
+            // Reinicia los datos en memoria y genera una nueva mesada.
+            datos = new DatosBancarios();
+            GenerarMesadaInicial();
+            ActualizarUI();
         }
     }
 }
