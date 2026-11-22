@@ -11,6 +11,10 @@ public class GestorPanelesLunes : MonoBehaviour
     [SerializeField] private GameObject decisionIrAlComer;
     [SerializeField] private GameObject panelBancoIrAlComer;
 
+    [Header("Paneles de desayuno y transporte")]
+    [SerializeField] private GameObject desayuno;
+    [SerializeField] private GameObject bus;
+
     [Header("Boton Siguiente de la mision")]
     [SerializeField] private GameObject botonSiguienteMision;
 
@@ -102,6 +106,8 @@ public class GestorPanelesLunes : MonoBehaviour
         return new GameObject[]
         {
             mision,
+            desayuno,
+            bus,
             introduccion,
             Paneldecision,
             decisionIrAlComer,
@@ -181,6 +187,18 @@ public class GestorPanelesLunes : MonoBehaviour
     }
 
     // PANEL PRINCIPAL
+
+    // SECUENCIA INICIAL: MISION → DESAYUNO → BUS → INTRODUCCION
+
+    public void IrADesayuno()
+    {
+       MostrarPanel(desayuno);
+    }
+
+    public void IrABus()
+    {
+       MostrarPanel(bus);
+    }
 
     public void IrAIntroduccion()
     {
