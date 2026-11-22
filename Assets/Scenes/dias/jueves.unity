@@ -13211,7 +13211,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8371613541547781988, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_SortingOrder
-      value: 2
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8965162884306634944, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_Name
@@ -14521,7 +14521,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -18.105011, y: 31}
+  m_AnchoredPosition: {x: -18.10498, y: 31}
   m_SizeDelta: {x: -268.78, y: -742.3114}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1534942560
@@ -14940,6 +14940,9 @@ MonoBehaviour:
   bienestarMaximo: 100
   dinero: 50000
   dineroMaximo: 100000
+  bienestarInicial: 100
+  saldoInicial: 100000
+  ingresosIniciales: 300000
   barraBienestarImage: {fileID: 911428358}
   barraDineroImage: {fileID: 814043453}
 --- !u!4 &1603592350
@@ -16001,7 +16004,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: DI
+          m_StringArgument: viernes
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1680799180

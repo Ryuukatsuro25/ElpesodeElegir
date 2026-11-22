@@ -12096,6 +12096,10 @@ PrefabInstance:
       propertyPath: m_RenderMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8371613541547781988, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_SortingOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8965162884306634944, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_Name
       value: CanvasMenuPausa
