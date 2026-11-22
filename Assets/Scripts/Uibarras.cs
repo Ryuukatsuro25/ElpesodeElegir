@@ -1,26 +1,91 @@
-using System.Collections;
+using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UIBarrasController : MonoBehaviour
 {
-    // Instancia estática para llamarlo desde cualquier botón sin arrastrar referencias
     public static UIBarrasController Instance;
 
     [Header("Valores de Estado")]
-    public float bienestarMental = 50f;
+    public float bienestarMental = 100f;
     public float bienestarMaximo = 100f;
     public float dinero = 100000f;
-    public float dineroMaximo = 100000f; // Límite máximo para normalizar la barra de 0 a 1
+    public float dineroMaximo = 300000f;
 
-    [Header("Referencias de UI (Imágenes o Barras)")]
-    public Image barraBienestarImage; // Componente Image en modo Filled
-    public Image barraDineroImage;    // Componente Image en modo Filled para el dinero
+    [Header("Valores Iniciales Nueva Partida")]
+    public float bienestarInicial = 100f;
+    public float saldoInicial = 100000f;
+    public float ingresosIniciales = 300000f;
+
+    [Header("Referencias de UI (Escena Activa)")]
+    public Image barraBienestarImage;
+    public Image barraDineroImage;
+
+    private string rutaBienestar;
+    private string rutaBancarios;
+
+    [System.Serializable]
+    public class DatosBienestar
+    {
+        public float valor;
+    }
+
+    [System.Serializable]
+    public class TransaccionItem
+    {
+        public string descripcion;
+        public float monto;
+        public bool esIngreso;
+    }
+
+    [System.Serializable]
+    public class DatosBancarios
+    {
+        public float saldoActual;
+        public float ingresosTotales;
+        public float gastosTotales;
+        public TransaccionItem[] historial;
+    }
 
     private void Awake()
     {
-        // Guardamos la instancia global para esta escena
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        rutaBienestar = Path.Combine(Application.persistentDataPath, "datosBienestar.json");
+        rutaBancarios = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
+
+        // Carga lo guardado en JSON para no perder progreso al cambiar de escena o reiniciar el singleton
+        CargarDatos();
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Limpia referencias destruidas de la escena anterior si aún no se asignan las nuevas
+        if (barraBienestarImage == null) barraBienestarImage = null;
+        if (barraDineroImage == null) barraDineroImage = null;
+
+        ActualizarUI();
     }
 
     private void Start()
@@ -28,45 +93,162 @@ public class UIBarrasController : MonoBehaviour
         ActualizarUI();
     }
 
-    // Métodos globales invocables desde cualquier script o botón
-    public void ModificarBienestar(float cantidad)
+    // Permite que cada escena (Lunes, Martes, etc.) registre sus imágenes activas
+    public void AsignarReferenciasUI(Image nuevaBarraBienestar, Image nuevaBarraDinero)
     {
-        bienestarMental = Mathf.Clamp(bienestarMental + cantidad, 0f, bienestarMaximo);
+        if (nuevaBarraBienestar != null)
+            barraBienestarImage = nuevaBarraBienestar;
+
+        if (nuevaBarraDinero != null)
+            barraDineroImage = nuevaBarraDinero;
+
         ActualizarUI();
     }
 
-    public void ModificarDinero(float cantidad)
+    public void ModificarBienestar(float cantidad)
     {
-        dinero += cantidad;
+        bienestarMental = Mathf.Clamp(bienestarMental + cantidad, 0f, bienestarMaximo);
+        GuardarDatosBienestar();
+        ActualizarUI();
+    }
+
+    public void RegistrarTransaccion(string descripcion, float monto, bool esIngreso)
+    {
+        DatosBancarios banco = CargarDatosBancariosDesdeArchivo();
+
+        if (esIngreso)
+        {
+            banco.saldoActual += monto;
+            banco.ingresosTotales += monto;
+        }
+        else
+        {
+            banco.saldoActual -= monto;
+            banco.gastosTotales += monto;
+        }
+
+        List<TransaccionItem> listaHistorial = new List<TransaccionItem>();
+        if (banco.historial != null)
+        {
+            listaHistorial.AddRange(banco.historial);
+        }
+
+        listaHistorial.Add(new TransaccionItem
+        {
+            descripcion = descripcion,
+            monto = monto,
+            esIngreso = esIngreso
+        });
+
+        banco.historial = listaHistorial.ToArray();
+
+        GuardarDatosBancariosEnArchivo(banco);
+
+        dinero = banco.saldoActual;
         ActualizarUI();
     }
 
     public void ActualizarUI()
     {
-        if (barraBienestarImage != null)
+        if (barraBienestarImage != null && bienestarMaximo > 0f)
         {
-            barraBienestarImage.fillAmount = bienestarMental / bienestarMaximo;
+            barraBienestarImage.fillAmount = Mathf.Clamp01(bienestarMental / bienestarMaximo);
         }
 
-        // Actualiza la barra de dinero de forma proporcional (0 a 1)
-        if (barraDineroImage != null)
+        if (barraDineroImage != null && dineroMaximo > 0f)
         {
             barraDineroImage.fillAmount = Mathf.Clamp01(dinero / dineroMaximo);
         }
     }
 
-    // Método para mantener las barras siempre al frente del Canvas
     public void TraerBarrasAlFrente()
     {
         transform.SetAsLastSibling();
     }
 
-    // Método para el botón de Tomar Café (resta 2000 y actualiza la barra)
-    public void ComprarCafe()
+    public void PrecioGasto(float montoPersonalizado)
     {
-        ModificarDinero(-2000f);
+        RegistrarTransaccion("PrecioAGastar", montoPersonalizado, false);
+    }
 
-        // Si tomar café también te sube bienestar mental, puedes descomentar esto:
-        // ModificarBienestar(10f); 
+    // Llama este método ÚNICAMENTE desde el botón "Empezar juego" / "Nueva partida"
+    public void ReiniciarPartida()
+    {
+        bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
+        dinero = saldoInicial;
+
+        GuardarDatosBienestar();
+
+        DatosBancarios bancoLimpio = new DatosBancarios
+        {
+            saldoActual = saldoInicial,
+            ingresosTotales = ingresosIniciales,
+            gastosTotales = 0f,
+            historial = new TransaccionItem[0]
+        };
+
+        GuardarDatosBancariosEnArchivo(bancoLimpio);
+        ActualizarUI();
+    }
+
+    private void GuardarDatosBienestar()
+    {
+        DatosBienestar datosB = new DatosBienestar { valor = bienestarMental };
+        File.WriteAllText(rutaBienestar, JsonUtility.ToJson(datosB, true));
+    }
+
+    private DatosBancarios CargarDatosBancariosDesdeArchivo()
+    {
+        if (File.Exists(rutaBancarios))
+        {
+            string jsonD = File.ReadAllText(rutaBancarios);
+            DatosBancarios bancoCargado = JsonUtility.FromJson<DatosBancarios>(jsonD);
+            if (bancoCargado != null)
+            {
+                return bancoCargado;
+            }
+        }
+
+        return new DatosBancarios
+        {
+            saldoActual = saldoInicial,
+            ingresosTotales = ingresosIniciales,
+            gastosTotales = 0f,
+            historial = new TransaccionItem[0]
+        };
+    }
+
+    private void GuardarDatosBancariosEnArchivo(DatosBancarios datos)
+    {
+        string json = JsonUtility.ToJson(datos, true);
+        File.WriteAllText(rutaBancarios, json);
+    }
+
+    private void CargarDatos()
+    {
+        if (File.Exists(rutaBienestar))
+        {
+            string jsonB = File.ReadAllText(rutaBienestar);
+            DatosBienestar datosB = JsonUtility.FromJson<DatosBienestar>(jsonB);
+            if (datosB != null)
+            {
+                bienestarMental = Mathf.Clamp(datosB.valor, 0f, bienestarMaximo);
+            }
+        }
+        else
+        {
+            bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
+            GuardarDatosBienestar();
+        }
+
+        DatosBancarios banco = CargarDatosBancariosDesdeArchivo();
+        dinero = banco.saldoActual;
+
+        if (!File.Exists(rutaBancarios))
+        {
+            GuardarDatosBancariosEnArchivo(banco);
+        }
+
+        ActualizarUI();
     }
 }

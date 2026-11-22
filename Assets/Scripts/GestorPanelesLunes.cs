@@ -1,7 +1,6 @@
 
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
 
 public class GestorPanelesLunes : MonoBehaviour
 {
@@ -46,27 +45,6 @@ public class GestorPanelesLunes : MonoBehaviour
     [SerializeField] private GameObject panelTercerAlmuerzoCostoso;
     [SerializeField] private GameObject panelCuartoAlmuerzoCostoso;
 
-    [Header("Maquina de Goldberg")]
-    [SerializeField] private GameObject decisionMaquinaGoldberg;
-    [SerializeField] private GameObject resultadoComprarGoldberg;
-    [SerializeField] private GameObject resultadoImprovisarGoldberg;
-
-    [Header("Sistema bancario")]
-    [SerializeField] private GestorBancario gestorBancario;
-
-    [Header("Sistema de bienestar")]
-    [SerializeField] private PopUpManagerLunes gestorBienestar;
-
-    [Header("Textos bancarios - Almuerzo barato")]
-    [SerializeField] private TMP_Text saldoBarato;
-    [SerializeField] private TMP_Text ingresosBarato;
-    [SerializeField] private TMP_Text gastosBarato;
-
-    [Header("Textos bancarios - Almuerzo costoso")]
-    [SerializeField] private TMP_Text saldoCostoso;
-    [SerializeField] private TMP_Text ingresosCostoso;
-    [SerializeField] private TMP_Text gastosCostoso;
-
     [Header("Panel inicial opcional")]
     [SerializeField] private GameObject panelInicial;
 
@@ -74,44 +52,30 @@ public class GestorPanelesLunes : MonoBehaviour
 
     private void Start()
     {
-        if (gestorBancario == null)
+        // Primero intentar recuperar la partida guardada.
+        if (RestaurarCheckpoint())
         {
-            gestorBancario = FindObjectOfType<GestorBancario>();
+            Debug.Log("Progreso del lunes recuperado correctamente.");
+            return;
         }
 
-        if (gestorBienestar == null)
-        {
-            gestorBienestar = FindObjectOfType<PopUpManagerLunes>();
-        }
-
-        if (gestorBancario == null)
-        {
-            Debug.LogWarning(
-                "GestorPanelesLunes: no se encontró GestorBancario en la escena."
-            );
-        }
-
-        if (gestorBienestar == null)
-        {
-            Debug.LogWarning(
-                "GestorPanelesLunes: no se encontró PopUpManagerLunes en la escena."
-            );
-        }
-
+        // Si no existe una partida guardada, iniciar normalmente.
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
         }
+        else if (mision != null)
+        {
+            MostrarPanel(mision);
+        }
     }
-
-    // NAVEGACIÓN ENTRE PANELES
 
     public void MostrarPanel(GameObject panelDestino)
     {
         if (panelDestino == null)
         {
             Debug.LogWarning(
-                "GestorPanelesLunes: el panel de destino no está asignado."
+                "GestorPanelesLunes: el panel de destino no esta asignado."
             );
             return;
         }
@@ -125,11 +89,17 @@ public class GestorPanelesLunes : MonoBehaviour
         {
             botonSiguienteMision.SetActive(false);
         }
+
+        // Registrar el ultimo panel visitado.
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelDestino.name
+        );
     }
 
-    private void OcultarTodosLosPaneles()
+    private GameObject[] ObtenerTodosLosPaneles()
     {
-        GameObject[] paneles =
+        return new GameObject[]
         {
             mision,
             introduccion,
@@ -154,21 +124,60 @@ public class GestorPanelesLunes : MonoBehaviour
             panelBancoAlmuerzoCostoso,
             panelSegundoAlmuerzoCostoso,
             panelTercerAlmuerzoCostoso,
-            panelCuartoAlmuerzoCostoso,
-
-            // Paneles de la maquina de Goldberg
-            decisionMaquinaGoldberg,
-            resultadoComprarGoldberg,
-            resultadoImprovisarGoldberg
+            panelCuartoAlmuerzoCostoso
         };
+    }
 
-        foreach (GameObject panel in paneles)
+    private void OcultarTodosLosPaneles()
+    {
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
         {
             if (panel != null)
             {
                 panel.SetActive(false);
             }
         }
+    }
+
+    // RECUPERAR EL ULTIMO PANEL GUARDADO
+
+    private bool RestaurarCheckpoint()
+    {
+        if (!SistemaGuardadoSemanal.IntentarObtenerPanel(
+            SceneManager.GetActiveScene().name,
+            out string nombrePanel))
+        {
+            return false;
+        }
+
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
+        {
+            if (panel != null && panel.name == nombrePanel)
+            {
+                MostrarPanel(panel);
+
+                // Reactivar la interacción de la interfaz.
+                CanvasGroup[] grupos = panel.GetComponentsInChildren<CanvasGroup>(true);
+
+                foreach (CanvasGroup grupo in grupos)
+                {
+                   grupo.interactable = true;
+                   grupo.blocksRaycasts = true;
+                }
+
+                Debug.Log(
+                    "Lunes: panel recuperado: " + nombrePanel
+                );
+
+                return true;
+            }
+        }
+
+        Debug.LogWarning(
+            "Lunes: no se encontro el panel guardado: " + nombrePanel
+        );
+
+        return false;
     }
 
     // PANEL PRINCIPAL
@@ -180,6 +189,14 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrADecision()
     {
+        Debug.Log("PRUEBA: EL BOTON SI ESTA EJECUTANDO EL METODO");
+
+        if (Paneldecision == null)
+        {
+            Debug.LogError("ERROR: Paneldecision no está asignado.");
+            return;
+        }
+
         MostrarPanel(Paneldecision);
     }
 
@@ -228,13 +245,6 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrAPanelBancoAlmuerzoBarato()
     {
-        RegistrarGastoAlmuerzo(
-            18000,
-            "Almuerzo barato con Juan"
-        );
-
-        ActualizarPanelBanco(true);
-
         MostrarPanel(panelBancoAlmuerzoBarato);
     }
 
@@ -293,13 +303,6 @@ public class GestorPanelesLunes : MonoBehaviour
 
     public void IrAPanelBancoAlmuerzoCostoso()
     {
-        RegistrarGastoAlmuerzo(
-            30000,
-            "Almuerzo costoso con Juan"
-        );
-
-        ActualizarPanelBanco(false);
-
         MostrarPanel(panelBancoAlmuerzoCostoso);
     }
 
@@ -318,153 +321,49 @@ public class GestorPanelesLunes : MonoBehaviour
         MostrarPanel(panelCuartoAlmuerzoCostoso);
     }
 
-    // MAQUINA DE GOLDBERG
-
-    public void IrADecisionMaquinaGoldberg()
-    {
-        MostrarPanel(decisionMaquinaGoldberg);
-    }
-
-    // OPCION 1: COMPRAR MATERIALES
-
-    public void ElegirComprarMateriales()
-    {
-        if (gestorBancario == null)
-        {
-            Debug.LogWarning(
-                "No se encontró GestorBancario. No se registró la compra."
-            );
-            return;
-        }
-
-        gestorBancario.AgregarTransaccion(
-            15000,
-            "Materiales para maquina de Goldberg",
-            false
-        );
-
-        Debug.Log(
-            "Compra de materiales para Goldberg registrada: -$15.000"
-        );
-
-        MostrarPanel(resultadoComprarGoldberg);
-    }
-
-    // OPCION 2: IMPROVISAR
-
-    public void ElegirImprovisar()
-    {
-        if (gestorBienestar == null)
-        {
-            Debug.LogWarning(
-                "No se encontró PopUpManagerLunes. No se aplicó el cambio de bienestar."
-            );
-            return;
-        }
-
-        gestorBienestar.AplicarCambioBienestar(
-            -7,
-            "Improvisaste los materiales. Tu bienestar disminuyó 7 puntos."
-        );
-
-        MostrarPanel(resultadoImprovisarGoldberg);
-    }
-
-    // REGISTRO DE GASTOS
-
-    private void RegistrarGastoAlmuerzo(int monto, string descripcion)
-    {
-        if (gestorBancario == null)
-        {
-            Debug.LogWarning(
-                "No se encontró el GestorBancario. No se registró el almuerzo."
-            );
-            return;
-        }
-
-        gestorBancario.AgregarTransaccion(
-            monto,
-            descripcion,
-            false
-        );
-
-        Debug.Log("Gasto registrado: " + descripcion + " -$" + monto);
-    }
-
-    // ACTUALIZACIÓN DE LOS PANELES BANCARIOS
-
-    private void ActualizarPanelBanco(bool almuerzoBarato)
-    {
-        if (gestorBancario == null)
-        {
-            Debug.LogWarning(
-                "No se puede actualizar el panel: GestorBancario no está asignado."
-            );
-            return;
-        }
-
-        TMP_Text textoSaldo;
-        TMP_Text textoIngresos;
-        TMP_Text textoGastos;
-
-        if (almuerzoBarato)
-        {
-            textoSaldo = saldoBarato;
-            textoIngresos = ingresosBarato;
-            textoGastos = gastosBarato;
-        }
-        else
-        {
-            textoSaldo = saldoCostoso;
-            textoIngresos = ingresosCostoso;
-            textoGastos = gastosCostoso;
-        }
-
-        if (textoSaldo != null)
-        {
-            textoSaldo.text = $"${gestorBancario.SaldoActual:N0}";
-        }
-        else
-        {
-            Debug.LogWarning(
-                "No se asignó el texto del saldo del panel bancario."
-            );
-        }
-
-        if (textoIngresos != null)
-        {
-            textoIngresos.text = $"+${gestorBancario.IngresosTotales:N0}";
-        }
-        else
-        {
-            Debug.LogWarning(
-                "No se asignó el texto de ingresos del panel bancario."
-            );
-        }
-
-        if (textoGastos != null)
-        {
-            textoGastos.text = $"-${gestorBancario.GastosTotales:N0}";
-        }
-        else
-        {
-            Debug.LogWarning(
-                "No se asignó el texto de gastos del panel bancario."
-            );
-        }
-    }
-
     // VOLVER AL PANEL INICIAL
 
     public void VolverAlPanelInicial()
     {
-        MostrarPanel(panelInicial);
+        if (panelInicial != null)
+            MostrarPanel(panelInicial);
+        else
+            MostrarPanel(mision);
     }
 
     // CARGAR OTRA ESCENA
 
     public void IrAEscena(string nombreEscena)
     {
-        SceneManager.LoadScene(nombreEscena);
+        if (!string.IsNullOrWhiteSpace(nombreEscena))
+        {
+            SceneManager.LoadScene(nombreEscena);
+        }
     }
+
+    // GUARDAR PROGRESO DEL LUNES
+
+    public void GuardarProgreso()
+    {
+        if (panelActual == null)
+        {
+            Debug.LogWarning(
+                "Lunes: no hay un panel actual para guardar."
+            );
+            return;
+        }
+
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelActual.name
+        );
+
+        PlayerPrefs.Save();
+
+        Debug.Log(
+            "Lunes: progreso guardado correctamente en: " 
+            + panelActual.name
+        );
+    }
+
 }

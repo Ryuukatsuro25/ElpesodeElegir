@@ -1,11 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -17,21 +16,23 @@ namespace PesoDeElegir.EventosImprevistos
     /// Un solo controlador que reutiliza TRES paneles (Narrativa, Decisión, Consecuencia)
     /// para procesar los eventos definidos en un JSON ("Computador", "Cumpleaños", "Vecina").
     ///
-    ///  - Lee los eventos de un TextAsset (por defecto Resources/EventosImprevistos.json).
-    ///  - Los ejecuta en orden aleatorio, uno tras otro, en la misma escena.
+    ///  - Lee los eventos de un TextAsset (EventosImprevistos.json).
+    ///  - Los sortea en orden aleatorio, pero cada vez que se entra a la escena muestra UNO solo:
+    ///    pre-decisión → decisión → consecuencia. Al pulsar Continuar el evento queda bloqueado
+    ///    (no se repite) y el juego sigue a la escena siguiente.
     ///  - Asigna el texto de cada opción a su botón; al elegir, ese botón muestra la opción elegida.
-    ///  - Aplica dinero y bienestar y los guarda al instante en datosBancarios.json y datosBienestar.json
-    ///    (mismo formato que GestorBancario/AppBanco y PopUpManager).
-    ///  - El bienestar queda siempre entre 0 y 100.
-    ///  - Dinero en pantalla: "-$30.000" / "+$15.000".
-    ///  - Cobro diferido de "Pedir prestado" con una bandera en PlayerPrefs.
+    ///  - Cada decisión cambia dinero y/o bienestar y se guarda al instante con GuardadoJuego
+    ///    (datosBancarios.json y datosBienestar.json, mismo formato que el resto del juego).
+    ///  - El bienestar queda siempre entre 0 y 100; una opción que cuesta más que el saldo se bloquea.
+    ///  - Las decisiones tomadas, el orden y el cobro pendiente se guardan en progresoEventos.json:
+    ///    si el juego se cierra a mitad, al volver sigue donde iba y no cobra dos veces.
     ///
-    /// Va en: un GameObject siempre activo, por ejemplo "--- Sistemas ---/MotorEventos".
+    /// Va en: un GameObject siempre activo FUERA del Canvas (en la escena DI: "Eventos").
     /// </summary>
     public class MotorEventosImprevistos : MonoBehaviour
     {
         // =====================================================================
-        //  ESTRUCTURA DEL JSON (los nombres de los campos deben coincidir)
+        //  ESTRUCTURA DEL JSON DE EVENTOS (los nombres de los campos deben coincidir)
         // =====================================================================
 
         [Serializable]
@@ -67,36 +68,32 @@ namespace PesoDeElegir.EventosImprevistos
             public string impacto;                // Costo/consecuencia visible ANTES de elegir ("" = no mostrar)
             public int monto;                     // + ingreso, - gasto, 0 = no toca el saldo
             public string descripcionMovimiento;  // Texto en el historial del banco
-            public float bienestar;               // Cambio exacto de bienestar
+            public float bienestar;               // Cambio exacto de bienestar (se usa si no hay rango)
+            public float bienestarMinimo;         // Rango aleatorio, p. ej. -20 y -10 (o 10 y 20).
+            public float bienestarMaximo;         // Si los dos son 0 se usa 'bienestar'.
             public string medalla;                // Id de la medalla ("" = ninguna)
             public bool activaCobroDiferido;      // true en "Pedir prestado"
             public string[] consecuencias;        // Pantallas después de elegir; la última va con los cambios
             public string mensajePersonaje;       // GM1.1.4: solo se muestra si monto != 0
         }
 
-        // Formato idéntico al de GestorBancario / AppBanco
+        // Progreso de esta escena (progresoEventos.json)
         [Serializable]
-        private class Movimiento
+        private class ProgresoEventos
         {
-            public string descripcion;
+            public List<string> orden = new();         // orden en que salen los eventos (se sortea una vez)
+            public List<string> completados = new();   // eventos ya decididos
+            public List<DecisionTomada> decisiones = new();
+            public bool cobroPendiente;                // "Pedir prestado" sin cobrar todavía
+        }
+
+        [Serializable]
+        private class DecisionTomada
+        {
+            public string evento;
+            public string opcion;
             public int monto;
-            public bool esIngreso;
-        }
-
-        [Serializable]
-        private class Cuenta
-        {
-            public int saldoActual;
-            public int ingresosTotales;
-            public int gastosTotales;
-            public List<Movimiento> historial = new();
-        }
-
-        // Formato idéntico al de PopUpManager
-        [Serializable]
-        private class DatosDeBienestar
-        {
-            public float bienestarActual;
+            public float bienestar;
         }
 
         // Un botón de opción con sus dos textos
@@ -114,14 +111,26 @@ namespace PesoDeElegir.EventosImprevistos
         // =====================================================================
 
         [Header("Datos")]
-        [Tooltip("Vacío = se carga Resources/EventosImprevistos.json")]
+        [Tooltip("El EventosImprevistos.json. Vacío = se busca en Resources/EventosImprevistos.json")]
         [SerializeField] private TextAsset archivoEventos;
         [SerializeField] private bool ordenAleatorio = true;
+        [Tooltip("Encendido: si el juego se cerró a mitad, sigue donde iba sin repetir eventos ya decididos.")]
+        [SerializeField] private bool reanudarProgreso = true;
 
-        [Header("Partida existente (datosBancarios.json)")]
-        [Tooltip("Apagado: se usa SOLO la partida que ya creó el banco. Encendido: si no existe, crea una de prueba.")]
+        [Header("Partida (datosBancarios.json)")]
+        [Tooltip("Encendido: si al iniciar no hay partida, la crea ya con la mesada del juego (80.000–120.000). " +
+                 "Apagado: la crea al llegar a la primera decisión. Nunca se crea una cuenta sin mesada.")]
         [SerializeField] private bool crearPartidaSiNoExiste = false;
-        [SerializeField] private int mesadaDePrueba = 100000;
+        [Tooltip("Una opción que cuesta más que el saldo se muestra bloqueada ('saldo insuficiente').")]
+        [SerializeField] private bool bloquearOpcionesSinSaldo = true;
+        [SerializeField] private string textoSinSaldo = " (saldo insuficiente)";
+
+        [Header("Bienestar aleatorio")]
+        [Tooltip("Si una opción no trae bienestar ni rango en el JSON, se le da un cambio aleatorio " +
+                 "entre estos valores: negativo si no mueve dinero o gasta, positivo si da dinero.")]
+        [SerializeField] private bool bienestarAleatorioSiFalta = true;
+        [SerializeField, Min(0f)] private float bienestarAleatorioMinimo = 10f;
+        [SerializeField, Min(0f)] private float bienestarAleatorioMaximo = 20f;
 
         [Header("Barras de arriba (aquí se ve el cambio de dinero y bienestar)")]
         [Tooltip("Barras/Barra ingresos/Barra llena  (Image Type = Filled, Horizontal)")]
@@ -177,40 +186,41 @@ namespace PesoDeElegir.EventosImprevistos
         [Tooltip("Pone Scale (1,1,1) en los paneles, cuadros, botones y textos SIN cambiar lo que se ve: " +
                  "pasa la escala al Width/Height. Arregla las letras estiradas.")]
         [SerializeField] private bool corregirEscalasAlIniciar = true;
+        [Tooltip("Acomoda los textos del panel de consecuencia uno debajo del otro dentro del cuadro naranja " +
+                 "(texto, frase del personaje, dinero, bienestar y Continuar) para que no se encimen.")]
+        [SerializeField] private bool acomodarPanelConsecuencia = true;
 
         [Header("Fin y conexiones con otros sistemas")]
         [SerializeField] private GameObject panelFin;
         [Tooltip("Opcional: conecta aquí MedallasManager.DesbloquearMedalla para mostrar su notificación")]
         [SerializeField] private UnityEvent<string> alDesbloquearMedalla;
-        [Tooltip("Lo que sigue al terminar los tres eventos")]
+        [Tooltip("Lo que sigue al terminar el evento (además de cambiar de escena)")]
         [SerializeField] private UnityEvent alTerminarEventos;
+        [Tooltip("Escena que se carga al terminar el evento (nombre exacto y en Build Settings). " +
+                 "Si al jugador lo trajo un botón con IrAEventoImprevisto, manda la escena de ese botón. " +
+                 "Vacío y sin botón: se queda en esta escena mostrando el Panel Fin.")]
+        [SerializeField] private string escenaAlTerminar = "";
+        [Tooltip("Espera antes de cambiar de escena (deja ver cómo se mueven las barras)")]
+        [SerializeField, Min(0f)] private float segundosAntesDeCambiarEscena = 0.3f;
 
         // =====================================================================
         //  ESTADO INTERNO
         // =====================================================================
 
-        private const string ArchivoBanco = "datosBancarios.json";
-        private const string ArchivoBienestar = "datosBienestar.json";
+        private const string ArchivoProgreso = "progresoEventos.json";
         private const string RecursoEventos = "EventosImprevistos";
-        private const string ClaveCobroDiferido = "EI4_CobroDiferidoPendiente";
-        private const float BienestarMin = 0f, BienestarMax = 100f, BienestarInicial = 50f;
-
-        private static readonly NumberFormatInfo FormatoPesos = new()
-        {
-            NumberGroupSeparator = ".",
-            NumberDecimalSeparator = ","
-        };
+        private const string ClaveCobroAntigua = "EI4_CobroDiferidoPendiente"; // versión anterior (PlayerPrefs)
 
         private ArchivoEventos datos;
+        private ProgresoEventos progreso = new();
         private readonly Queue<EventoDatos> colaEventos = new();
-        private bool cobroActivadoEnEsteEvento;
+        private readonly Dictionary<GameObject, GameObject> contenedores = new();
+        private bool[] opcionDisponible = Array.Empty<bool>();
+        private bool terminado;
         private float rellenoObjetivo;          // bienestar 0..1
-        private float rellenoIngresosObjetivo;  // saldo / ingresos totales 0..1
+        private float rellenoIngresosObjetivo;  // saldo / saldo máximo de la partida 0..1
         private Coroutine rutinaDecision;
         private Coroutine rutinaDeltaIngresos, rutinaDeltaBienestar;
-
-        private string RutaBanco => Path.Combine(Application.persistentDataPath, ArchivoBanco);
-        private string RutaBienestar => Path.Combine(Application.persistentDataPath, ArchivoBienestar);
 
         // =====================================================================
         //  CICLO DE UNITY
@@ -221,6 +231,10 @@ namespace PesoDeElegir.EventosImprevistos
             if (!ValidarJerarquia()) return;
             if (corregirEscalasAlIniciar) CorregirEscalas();
             if (forzarTextosDentroDelCuadro) ConfigurarTextos();
+            if (acomodarPanelConsecuencia) AcomodarPanelConsecuencia();
+
+            DesactivarOnClickDelInspector();
+            CalcularContenedores();
             OcultarPaneles();
             if (textoDeltaIngresos != null) textoDeltaIngresos.gameObject.SetActive(false);
             if (textoDeltaBienestar != null) textoDeltaBienestar.gameObject.SetActive(false);
@@ -230,8 +244,9 @@ namespace PesoDeElegir.EventosImprevistos
             VerificarPartida();
             RefrescarHUD(instantaneo: true);
 
+            CargarProgreso();
             PrepararCola();
-            SiguientePaso();
+            IniciarVisita();
         }
 
         private void Update()
@@ -247,7 +262,7 @@ namespace PesoDeElegir.EventosImprevistos
         }
 
         // =====================================================================
-        //  LECTURA DEL JSON Y ORDEN ALEATORIO
+        //  LECTURA DEL JSON DE EVENTOS
         // =====================================================================
 
         private bool CargarEventos()
@@ -255,7 +270,8 @@ namespace PesoDeElegir.EventosImprevistos
             TextAsset fuente = archivoEventos != null ? archivoEventos : Resources.Load<TextAsset>(RecursoEventos);
             if (fuente == null)
             {
-                Debug.LogError($"MotorEventos: no se encontró Resources/{RecursoEventos}.json ni hay archivo asignado.");
+                Debug.LogError("MotorEventos: asigna EventosImprevistos.json en 'Archivo Eventos' " +
+                               $"(o ponlo en Resources/{RecursoEventos}.json).", this);
                 return false;
             }
 
@@ -265,91 +281,182 @@ namespace PesoDeElegir.EventosImprevistos
             }
             catch (Exception e)
             {
-                Debug.LogError($"MotorEventos: el JSON tiene un error de formato. {e.Message}");
+                Debug.LogError($"MotorEventos: EventosImprevistos.json tiene un error de formato. {e.Message}", this);
                 return false;
             }
 
             if (datos?.eventos == null || datos.eventos.Length == 0)
             {
-                Debug.LogError("MotorEventos: el JSON no contiene eventos.");
+                Debug.LogError("MotorEventos: el JSON no contiene eventos.", this);
                 return false;
             }
 
+            var ids = new HashSet<string>();
             foreach (EventoDatos evento in datos.eventos)
             {
-                if (evento.opciones != null && evento.opciones.Length > botonesOpcion.Length)
+                if (string.IsNullOrEmpty(evento.id) || !ids.Add(evento.id))
+                    Debug.LogWarning($"MotorEventos: hay un evento sin 'id' o con 'id' repetido ('{evento.id}'). " +
+                                     "Cada evento necesita un id único para guardar el progreso.");
+
+                if (evento.opciones == null || evento.opciones.Length == 0)
+                    Debug.LogWarning($"MotorEventos: '{evento.id}' no tiene opciones.");
+                else if (evento.opciones.Length > botonesOpcion.Length)
                     Debug.LogWarning($"MotorEventos: '{evento.id}' tiene {evento.opciones.Length} opciones y solo hay {botonesOpcion.Length} botones.");
             }
 
             return true;
         }
 
+        // =====================================================================
+        //  PROGRESO (progresoEventos.json)
+        // =====================================================================
+
+        private void CargarProgreso()
+        {
+            progreso = null;
+
+            if (reanudarProgreso)
+            {
+                GuardadoJuego.Resultado r = GuardadoJuego.Leer(ArchivoProgreso, out progreso);
+                if (r == GuardadoJuego.Resultado.Ok)
+                    Debug.Log($"MotorEventos: se reanuda el progreso ({progreso.completados?.Count ?? 0} de " +
+                              $"{datos.eventos.Length} eventos ya decididos).");
+            }
+
+            progreso ??= new ProgresoEventos();
+            progreso.orden ??= new List<string>();
+            progreso.completados ??= new List<string>();
+            progreso.decisiones ??= new List<DecisionTomada>();
+
+            // Migración: el cobro antes se guardaba en PlayerPrefs
+            if (PlayerPrefs.GetInt(ClaveCobroAntigua, 0) == 1)
+            {
+                progreso.cobroPendiente = true;
+                PlayerPrefs.DeleteKey(ClaveCobroAntigua);
+                PlayerPrefs.Save();
+            }
+        }
+
+        private void GuardarProgreso() => GuardadoJuego.Escribir(ArchivoProgreso, progreso);
+
         private void PrepararCola()
         {
-            var lista = new List<EventoDatos>(datos.eventos);
+            var porId = new Dictionary<string, EventoDatos>();
+            foreach (EventoDatos e in datos.eventos)
+                if (!string.IsNullOrEmpty(e.id) && !porId.ContainsKey(e.id)) porId[e.id] = e;
+
+            // Se quitan del orden guardado los eventos que ya no existen en el JSON
+            progreso.orden.RemoveAll(id => !porId.ContainsKey(id));
+
+            // Eventos que todavía no tienen lugar en el orden (partida nueva o eventos agregados después)
+            var nuevos = new List<string>();
+            foreach (string id in porId.Keys)
+                if (!progreso.orden.Contains(id)) nuevos.Add(id);
 
             if (ordenAleatorio)
             {
                 // Fisher–Yates: cada orden posible tiene la misma probabilidad
-                for (int i = lista.Count - 1; i > 0; i--)
+                for (int i = nuevos.Count - 1; i > 0; i--)
                 {
                     int j = Random.Range(0, i + 1);
-                    (lista[i], lista[j]) = (lista[j], lista[i]);
+                    (nuevos[i], nuevos[j]) = (nuevos[j], nuevos[i]);
                 }
             }
 
+            progreso.orden.AddRange(nuevos);
+            GuardarProgreso(); // el orden sorteado queda fijo aunque se cierre el juego
+
             colaEventos.Clear();
-            foreach (EventoDatos evento in lista) colaEventos.Enqueue(evento);
+            foreach (string id in progreso.orden)
+                if (!progreso.completados.Contains(id)) colaEventos.Enqueue(porId[id]);
+
+            if (colaEventos.Count == 0 && !progreso.cobroPendiente)
+                Debug.LogWarning("MotorEventos: los eventos de esta partida ya se jugaron (están bloqueados). " +
+                                 "Para volver a probarlos: clic derecho en el componente → 'Pruebas/Reiniciar progreso de los eventos'.");
         }
 
         // =====================================================================
-        //  FLUJO: evento → (cobro diferido) → evento → … → fin
+        //  FLUJO DE UNA VISITA: pre-decisión → decisión → consecuencia → fin
         // =====================================================================
 
-        private void SiguientePaso()
+        /// <summary>
+        /// Cada vez que se entra a la escena se juega UN solo evento (el siguiente del orden sorteado).
+        /// Si quedó un cobro de "Pedir prestado" de la visita anterior, se cobra aquí y se cuenta como
+        /// la primera pantalla de la pre-decisión (no agrega pantallas extra).
+        /// </summary>
+        private void IniciarVisita()
         {
-            // El cobro se hace en una pantalla POSTERIOR: no justo después de pedir prestado,
-            // sino antes del siguiente evento (o al final si ya no quedan eventos).
-            bool hayCobro = PlayerPrefs.GetInt(ClaveCobroDiferido, 0) == 1;
-            bool puedeCobrarse = !cobroActivadoEnEsteEvento || colaEventos.Count == 0;
-            cobroActivadoEnEsteEvento = false;
-
-            if (hayCobro && puedeCobrarse)
-            {
-                EjecutarCobroDiferido();
-                return;
-            }
+            string avisoCobro = progreso.cobroPendiente ? EjecutarCobroDiferido() : null;
 
             if (colaEventos.Count == 0)
             {
-                OcultarPaneles();
-                if (panelFin != null) panelFin.SetActive(true);
-                alTerminarEventos?.Invoke();
+                // Ya no hay eventos: si hubo cobro se muestra como consecuencia; si no, se sigue de largo
+                if (!string.IsNullOrEmpty(avisoCobro))
+                    MostrarConsecuencia(avisoCobro, datos.cobroDiferido.monto, datos.cobroDiferido.bienestar, null, Terminar);
+                else
+                    Terminar();
                 return;
             }
 
             EventoDatos evento = colaEventos.Dequeue();
-            MostrarNarrativa(evento.pantallasIntro, () => MostrarDecision(evento));
+
+            var preDecision = new List<string>();
+            if (!string.IsNullOrEmpty(avisoCobro)) preDecision.Add(avisoCobro);
+            if (evento.pantallasIntro != null) preDecision.AddRange(evento.pantallasIntro);
+
+            MostrarNarrativa(preDecision, () => MostrarDecision(evento));
         }
 
-        private void EjecutarCobroDiferido()
+        /// <summary>Aplica el cobro pendiente y devuelve su texto (null si no hay cobro definido).</summary>
+        private string EjecutarCobroDiferido()
         {
             CobroDiferidoDatos cobro = datos.cobroDiferido;
-            PlayerPrefs.DeleteKey(ClaveCobroDiferido);
-            PlayerPrefs.Save();
+            progreso.cobroPendiente = false;
 
             if (cobro == null)
             {
                 Debug.LogWarning("MotorEventos: hay un cobro pendiente pero el JSON no define 'cobroDiferido'.");
-                SiguientePaso();
-                return;
+                GuardarProgreso();
+                return null;
             }
 
             AplicarDinero(cobro.monto, cobro.descripcionMovimiento);
             AplicarBienestar(cobro.bienestar);
+            GuardarProgreso();
+            return cobro.texto;
+        }
 
-            // El cobro mueve el saldo, pero no es una decisión del personaje: sin mensaje GM1.1.4
-            MostrarConsecuencia(cobro.texto, cobro.monto, cobro.bienestar, null, SiguientePaso);
+        /// <summary>Fin de la visita: el evento ya quedó bloqueado en progresoEventos.json.</summary>
+        private void Terminar()
+        {
+            if (terminado) return;
+            terminado = true;
+
+            OcultarPaneles();
+            alTerminarEventos?.Invoke();
+
+            // Prioridad: la escena que pidió el botón que trajo al jugador (IrAEventoImprevisto),
+            // luego la del Inspector. Sin ninguna, se queda aquí con el Panel Fin.
+            string escena = IrAEventoImprevisto.TomarEscenaSiguiente();
+            if (string.IsNullOrWhiteSpace(escena)) escena = escenaAlTerminar;
+
+            if (!string.IsNullOrWhiteSpace(escena))
+                StartCoroutine(CargarEscenaTrasPausa(escena.Trim()));
+            else if (panelFin != null)
+                MostrarSolo(panelFin);
+        }
+
+        private IEnumerator CargarEscenaTrasPausa(string escena)
+        {
+            if (segundosAntesDeCambiarEscena > 0f) yield return new WaitForSeconds(segundosAntesDeCambiarEscena);
+
+            if (!Application.CanStreamedLevelBeLoaded(escena))
+            {
+                Debug.LogError($"MotorEventos: la escena '{escena}' no existe o no está en File > Build Settings.", this);
+                if (panelFin != null) MostrarSolo(panelFin);
+                yield break;
+            }
+            SceneManager.LoadScene(escena);
         }
 
         // =====================================================================
@@ -365,9 +472,10 @@ namespace PesoDeElegir.EventosImprevistos
             }
 
             int indice = 0;
-            MostrarSolo(panelNarrativa);
+            MostrarSolo(panelNarrativa, textoNarrativa, botonSiguiente);
             PonerTexto(textoNarrativa, pantallas[indice]);
 
+            botonSiguiente.interactable = true;
             botonSiguiente.onClick.RemoveAllListeners();
             botonSiguiente.onClick.AddListener(() =>
             {
@@ -379,9 +487,9 @@ namespace PesoDeElegir.EventosImprevistos
                     return;
                 }
 
-                // Último "Siguiente": se APAGA el panel de narrativa antes de pasar al siguiente
+                // Último "Siguiente": se APAGA la narrativa antes de pasar al siguiente
                 botonSiguiente.onClick.RemoveAllListeners();
-                panelNarrativa.SetActive(false);
+                Ocultar(panelNarrativa);
                 alTerminar?.Invoke();
             });
         }
@@ -393,11 +501,19 @@ namespace PesoDeElegir.EventosImprevistos
         private void MostrarDecision(EventoDatos evento)
         {
             // Narrativa apagada → se ENCIENDE el panel de decisión con el dilema y las opciones
-            if (panelNarrativa != null) panelNarrativa.SetActive(false);
-            MostrarSolo(panelDecision);
+            var elementos = new List<Component> { textoDecision };
+            foreach (BotonOpcion ui in botonesOpcion)
+                if (ui?.boton != null) elementos.Add(ui.boton);
+            MostrarSolo(panelDecision, elementos.ToArray());
             PonerTexto(textoDecision, evento.textoDecision);
 
             OpcionDatos[] opciones = evento.opciones ?? Array.Empty<OpcionDatos>();
+            // Si todavía no hay partida, se crea aquí con la mesada del juego: así el bloqueo por
+            // saldo usa el dinero real y no un saldo de 0.
+            int saldo = GuardadoJuego.LeerCuenta(crearSiFalta: true).saldoActual;
+            RefrescarHUD();
+            opcionDisponible = new bool[botonesOpcion.Length];
+            int disponibles = 0;
 
             for (int i = 0; i < botonesOpcion.Length; i++)
             {
@@ -413,8 +529,13 @@ namespace PesoDeElegir.EventosImprevistos
                 OpcionDatos opcion = opciones[i];
                 BotonOpcion botonElegido = ui;
 
+                // Límite del dinero: una compra voluntaria no puede dejar el saldo en negativo
+                bool alcanza = !bloquearOpcionesSinSaldo || opcion.monto >= 0 || saldo + opcion.monto >= 0;
+                opcionDisponible[i] = alcanza;
+                if (alcanza) disponibles++;
+
                 // El texto de cada opción va a SU botón
-                if (ui.etiqueta != null) PonerTexto(ui.etiqueta, opcion.etiqueta);
+                if (ui.etiqueta != null) PonerTexto(ui.etiqueta, opcion.etiqueta + (alcanza ? "" : textoSinSaldo));
                 if (ui.impacto != null)
                 {
                     bool hayImpacto = !string.IsNullOrEmpty(opcion.impacto);
@@ -422,7 +543,14 @@ namespace PesoDeElegir.EventosImprevistos
                     if (hayImpacto) PonerTexto(ui.impacto, opcion.impacto);
                 }
 
-                ui.boton.onClick.AddListener(() => ElegirOpcion(botonElegido, opcion));
+                ui.boton.onClick.AddListener(() => ElegirOpcion(evento, botonElegido, opcion));
+            }
+
+            // Nunca dejar al jugador sin salida: si no alcanza para ninguna, se habilitan todas
+            if (disponibles == 0)
+            {
+                Debug.LogWarning($"MotorEventos: en '{evento.id}' ninguna opción alcanza con el saldo; se habilitan todas.");
+                for (int i = 0; i < opcionDisponible.Length; i++) opcionDisponible[i] = true;
             }
 
             if (rutinaDecision != null) StopCoroutine(rutinaDecision);
@@ -437,7 +565,7 @@ namespace PesoDeElegir.EventosImprevistos
             rutinaDecision = null;
         }
 
-        private void ElegirOpcion(BotonOpcion botonElegido, OpcionDatos opcion)
+        private void ElegirOpcion(EventoDatos evento, BotonOpcion botonElegido, OpcionDatos opcion)
         {
             if (rutinaDecision != null) StopCoroutine(rutinaDecision);
 
@@ -454,21 +582,24 @@ namespace PesoDeElegir.EventosImprevistos
             if (botonElegido.etiqueta != null) PonerTexto(botonElegido.etiqueta, prefijoEleccion + opcion.etiqueta);
             if (botonElegido.impacto != null) botonElegido.impacto.gameObject.SetActive(false);
 
-            rutinaDecision = StartCoroutine(AplicarTrasPausa(opcion));
+            rutinaDecision = StartCoroutine(AplicarTrasPausa(evento, opcion));
         }
 
-        private IEnumerator AplicarTrasPausa(OpcionDatos opcion)
+        private IEnumerator AplicarTrasPausa(EventoDatos evento, OpcionDatos opcion)
         {
             if (segundosMostrandoEleccion > 0f) yield return new WaitForSeconds(segundosMostrandoEleccion);
             rutinaDecision = null;
-            AplicarOpcion(opcion);
+            AplicarOpcion(evento, opcion);
         }
 
         private void PonerOpcionesInteractivas(bool valor)
         {
-            foreach (BotonOpcion ui in botonesOpcion)
+            for (int i = 0; i < botonesOpcion.Length; i++)
             {
-                if (ui != null && ui.boton != null) ui.boton.interactable = valor;
+                BotonOpcion ui = botonesOpcion[i];
+                if (ui == null || ui.boton == null) continue;
+                bool disponible = i >= opcionDisponible.Length || opcionDisponible[i];
+                ui.boton.interactable = valor && disponible;
             }
         }
 
@@ -476,33 +607,69 @@ namespace PesoDeElegir.EventosImprevistos
         //  AFECTACIONES DE LA OPCIÓN
         // =====================================================================
 
-        private void AplicarOpcion(OpcionDatos opcion)
+        private void AplicarOpcion(EventoDatos evento, OpcionDatos opcion)
         {
-            // 1. Afectaciones inmediatas (se guardan y el HUD cambia en este instante)
+            // El valor aleatorio se sortea UNA vez: el mismo se aplica, se muestra y se guarda
+            float cambioBienestar = ResolverBienestar(opcion);
+
+            // 1. Afectaciones inmediatas (se guardan y las barras cambian en este instante)
             AplicarDinero(opcion.monto, opcion.descripcionMovimiento);
-            AplicarBienestar(opcion.bienestar);
+            AplicarBienestar(cambioBienestar);
 
             if (!string.IsNullOrEmpty(opcion.medalla))
                 DesbloquearMedalla(opcion.medalla);
 
-            if (opcion.activaCobroDiferido)
-            {
-                PlayerPrefs.SetInt(ClaveCobroDiferido, 1);
-                PlayerPrefs.Save();
-                cobroActivadoEnEsteEvento = true;
-            }
+            // "Pedir prestado": el cobro llega en la PRÓXIMA visita a esta escena
+            if (opcion.activaCobroDiferido) progreso.cobroPendiente = true;
 
-            // 2. Pantallas: todas menos la última como narrativa; la última, con los cambios
+            // 2. La decisión queda guardada y el evento BLOQUEADO: no se vuelve a mostrar
+            if (!progreso.completados.Contains(evento.id)) progreso.completados.Add(evento.id);
+            progreso.decisiones.Add(new DecisionTomada
+            {
+                evento = evento.id,
+                opcion = opcion.etiqueta,
+                monto = opcion.monto,
+                bienestar = cambioBienestar
+            });
+            GuardarProgreso();
+
+            // 3. UNA sola pantalla de consecuencia: si el JSON trae varios textos se unen en uno
             string[] textos = opcion.consecuencias ?? Array.Empty<string>();
-            var narrativa = new List<string>();
-            for (int i = 0; i < textos.Length - 1; i++) narrativa.Add(textos[i]);
-            string ultimo = textos.Length > 0 ? textos[textos.Length - 1] : string.Empty;
+            var partes = new List<string>();
+            foreach (string t in textos)
+                if (!string.IsNullOrWhiteSpace(t)) partes.Add(t.Trim());
+            string textoFinal = string.Join("\n\n", partes);
 
             // GM1.1.4: el mensaje en primera persona solo si la opción movió el saldo
             string mensaje = opcion.monto != 0 ? opcion.mensajePersonaje : null;
 
-            MostrarNarrativa(narrativa, () =>
-                MostrarConsecuencia(ultimo, opcion.monto, opcion.bienestar, mensaje, SiguientePaso));
+            // Continuar → se termina el evento (no hay ciclo hacia otro evento)
+            MostrarConsecuencia(textoFinal, opcion.monto, cambioBienestar, mensaje, Terminar);
+        }
+
+        /// <summary>
+        /// Cuánto cambia el bienestar con esta opción:
+        ///  1. Si el JSON trae un rango (bienestarMinimo/bienestarMaximo) → número entero al azar en ese rango.
+        ///  2. Si trae un valor fijo (bienestar) → ese valor.
+        ///  3. Si no trae nada → al azar entre 10 y 20 (Inspector): negativo si la opción no da dinero
+        ///     o lo gasta, positivo si da dinero. Así toda decisión afecta la estabilidad emocional.
+        /// </summary>
+        private float ResolverBienestar(OpcionDatos opcion)
+        {
+            if (!Mathf.Approximately(opcion.bienestarMinimo, 0f) || !Mathf.Approximately(opcion.bienestarMaximo, 0f))
+            {
+                int a = Mathf.RoundToInt(Mathf.Min(opcion.bienestarMinimo, opcion.bienestarMaximo));
+                int b = Mathf.RoundToInt(Mathf.Max(opcion.bienestarMinimo, opcion.bienestarMaximo));
+                return Random.Range(a, b + 1); // +1: el máximo también puede salir
+            }
+
+            if (!Mathf.Approximately(opcion.bienestar, 0f) || !bienestarAleatorioSiFalta)
+                return opcion.bienestar;
+
+            int minimo = Mathf.RoundToInt(Mathf.Min(bienestarAleatorioMinimo, bienestarAleatorioMaximo));
+            int maximo = Mathf.RoundToInt(Mathf.Max(bienestarAleatorioMinimo, bienestarAleatorioMaximo));
+            float valor = Random.Range(minimo, maximo + 1);
+            return opcion.monto > 0 ? valor : -valor;
         }
 
         // =====================================================================
@@ -511,13 +678,15 @@ namespace PesoDeElegir.EventosImprevistos
 
         private void MostrarConsecuencia(string texto, int monto, float cambioBienestar, string mensajePersonaje, Action alContinuar)
         {
-            MostrarSolo(panelConsecuencia);
+            MostrarSolo(panelConsecuencia, textoConsecuencia, botonContinuar,
+                        textoCambioDinero, textoCambioBienestar, textoMensajePersonaje);
 
             PonerTexto(textoConsecuencia, texto ?? string.Empty);
             MostrarLinea(textoCambioDinero, monto != 0, DineroConSigno(monto));
             MostrarLinea(textoCambioBienestar, !Mathf.Approximately(cambioBienestar, 0f), BienestarConSigno(cambioBienestar));
             MostrarLinea(textoMensajePersonaje, !string.IsNullOrEmpty(mensajePersonaje), mensajePersonaje);
 
+            botonContinuar.interactable = true;
             botonContinuar.onClick.RemoveAllListeners();
             botonContinuar.onClick.AddListener(() =>
             {
@@ -527,135 +696,65 @@ namespace PesoDeElegir.EventosImprevistos
         }
 
         // =====================================================================
-        //  PERSISTENCIA: DINERO (datosBancarios.json)
+        //  DINERO Y BIENESTAR (se guardan con GuardadoJuego)
         // =====================================================================
 
         private void AplicarDinero(int monto, string descripcion)
         {
             if (monto == 0) return;
 
-            // Siempre se relee el archivo justo antes de escribir: así se modifica la partida
-            // tal como la dejó el banco (mesada, gastos de otros días, etc.) y no una copia vieja.
-            Cuenta cuenta = LeerCuenta();
-            if (cuenta == null)
-            {
-                Debug.LogWarning($"MotorEventos: no existe {ArchivoBanco}; se crea uno nuevo sin mesada. " +
-                                 "Inicia el juego desde el domingo para usar la partida real.");
-                cuenta = new Cuenta();
-            }
-            cuenta.historial ??= new List<Movimiento>();
-
-            bool esIngreso = monto > 0;
-            int valor = Mathf.Abs(monto);
-
-            cuenta.historial.Add(new Movimiento
-            {
-                descripcion = string.IsNullOrEmpty(descripcion) ? (esIngreso ? "Ingreso" : "Gasto") : descripcion,
-                monto = valor,
-                esIngreso = esIngreso
-            });
-
-            if (esIngreso)
-            {
-                cuenta.saldoActual += valor;
-                cuenta.ingresosTotales += valor;
-            }
-            else
-            {
-                cuenta.saldoActual -= valor;
-                cuenta.gastosTotales += valor;
-            }
-
-            File.WriteAllText(RutaBanco, JsonUtility.ToJson(cuenta, true));
+            // GuardadoJuego relee datosBancarios.json justo antes de escribir (no pisa cambios
+            // de otros scripts) y, si no hay partida, la crea con la mesada del juego.
+            GuardadoJuego.RegistrarMovimiento(monto, descripcion);
             SincronizarScriptsDeLaEscena();
             RefrescarHUD();
             MostrarDelta(textoDeltaIngresos, DineroConSigno(monto), ref rutinaDeltaIngresos);
         }
 
-        /// <summary>
-        /// Si en la escena hay un GestorBancario, AppBanco o PopUpManager, les pide que vuelvan a
-        /// leer su JSON. Así el celular muestra el movimiento nuevo y, sobre todo, ninguno de ellos
-        /// vuelve a guardar su copia vieja encima de lo que escribió este motor.
-        /// Se hace por nombre de clase para no depender de que esos scripts existan en la rama.
-        /// </summary>
-        private static void SincronizarScriptsDeLaEscena()
-        {
-            foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
-            {
-                string tipo = mb.GetType().Name;
-                if (tipo == "GestorBancario" || tipo == "AppBanco" || tipo == "PopUpManager")
-                    mb.SendMessage("CargarDatos", SendMessageOptions.DontRequireReceiver);
-            }
-        }
-
-        private Cuenta LeerCuenta()
-        {
-            if (!File.Exists(RutaBanco)) return null;
-
-            try
-            {
-                return JsonUtility.FromJson<Cuenta>(File.ReadAllText(RutaBanco));
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"MotorEventos: no se pudo leer {ArchivoBanco}. {e.Message}");
-                return null;
-            }
-        }
-
-        private void VerificarPartida()
-        {
-            Cuenta existente = LeerCuenta();
-            if (existente != null)
-            {
-                Debug.Log($"MotorEventos: usando la partida de {RutaBanco} " +
-                          $"(saldo {Dinero(existente.saldoActual)}, {existente.historial?.Count ?? 0} movimientos).");
-                return;
-            }
-
-            if (!crearPartidaSiNoExiste)
-            {
-                Debug.LogWarning($"MotorEventos: no existe {RutaBanco}. Juega primero el domingo " +
-                                 "o marca 'Crear Partida Si No Existe' para probar la escena sola.");
-                return;
-            }
-
-            var cuenta = new Cuenta { saldoActual = mesadaDePrueba, ingresosTotales = mesadaDePrueba };
-            cuenta.historial.Add(new Movimiento { descripcion = "Mesada semanal", monto = mesadaDePrueba, esIngreso = true });
-            File.WriteAllText(RutaBanco, JsonUtility.ToJson(cuenta, true));
-
-            Debug.LogWarning($"MotorEventos: no había partida; se creó una de prueba con {Dinero(mesadaDePrueba)}.");
-        }
-
-        // =====================================================================
-        //  PERSISTENCIA: BIENESTAR (datosBienestar.json, siempre 0–100)
-        // =====================================================================
-
         private void AplicarBienestar(float cambio)
         {
             if (Mathf.Approximately(cambio, 0f)) return;
 
-            float nuevo = Mathf.Clamp(LeerBienestar() + cambio, BienestarMin, BienestarMax);
-            File.WriteAllText(RutaBienestar, JsonUtility.ToJson(new DatosDeBienestar { bienestarActual = nuevo }, true));
+            // Se suma al valor GUARDADO y queda siempre entre 0 y 100
+            GuardadoJuego.CambiarBienestar(cambio);
             SincronizarScriptsDeLaEscena();
             RefrescarHUD();
             MostrarDelta(textoDeltaBienestar, BienestarConSigno(cambio), ref rutinaDeltaBienestar);
         }
 
-        private float LeerBienestar()
+        /// <summary>
+        /// Si en la escena hay otros scripts que guardan una copia del dinero o del bienestar,
+        /// les pide que vuelvan a leer el JSON. Así ninguno vuelve a guardar su copia vieja
+        /// encima de lo que escribió este motor. Se hace por nombre para no depender de ellos.
+        /// </summary>
+        private static void SincronizarScriptsDeLaEscena()
         {
-            if (!File.Exists(RutaBienestar)) return BienestarInicial;
+            foreach (MonoBehaviour mb in FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                switch (mb.GetType().Name)
+                {
+                    case "GestorBancario":
+                    case "AppBanco":
+                    case "PopUpManager":
+                    case "GestorBienestar":
+                        mb.SendMessage("CargarDatos", SendMessageOptions.DontRequireReceiver);
+                        break;
+                }
+            }
+        }
 
-            try
+        private void VerificarPartida()
+        {
+            GuardadoJuego.CuentaGuardada cuenta = GuardadoJuego.LeerCuenta(crearSiFalta: crearPartidaSiNoExiste);
+            if (cuenta != null)
             {
-                DatosDeBienestar d = JsonUtility.FromJson<DatosDeBienestar>(File.ReadAllText(RutaBienestar));
-                return d != null ? Mathf.Clamp(d.bienestarActual, BienestarMin, BienestarMax) : BienestarInicial;
+                Debug.Log($"MotorEventos: usando la partida de {GuardadoJuego.Ruta(GuardadoJuego.ArchivoBanco)} " +
+                          $"(saldo {Dinero(cuenta.saldoActual)}, {cuenta.historial.Count} movimientos).");
+                return;
             }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"MotorEventos: no se pudo leer {ArchivoBienestar}. {e.Message}");
-                return BienestarInicial;
-            }
+
+            Debug.LogWarning("MotorEventos: todavía no hay partida (datosBancarios.json). Se creará con la mesada " +
+                             "del juego al llegar a la primera decisión.");
         }
 
         // =====================================================================
@@ -675,17 +774,15 @@ namespace PesoDeElegir.EventosImprevistos
 
         private void RefrescarHUD(bool instantaneo = false)
         {
-            // Dinero: la barra llena = todo lo que ha entrado (mesada + ingresos); baja con cada gasto
-            Cuenta cuenta = LeerCuenta();
-            int saldo = cuenta?.saldoActual ?? 0;
-            int ingresos = cuenta?.ingresosTotales ?? 0;
-            rellenoIngresosObjetivo = ingresos > 0 ? Mathf.Clamp01((float)saldo / ingresos) : 0f;
-            if (textoSaldo != null) textoSaldo.text = Dinero(saldo);
+            // Dinero: misma regla que la barra de ingresos del resto del juego
+            GuardadoJuego.CuentaGuardada cuenta = GuardadoJuego.LeerCuenta(crearSiFalta: false);
+            rellenoIngresosObjetivo = GuardadoJuego.PorcentajeIngresos(cuenta);
+            if (textoSaldo != null) textoSaldo.text = Dinero(cuenta?.saldoActual ?? 0);
 
             // Bienestar: 0–100
-            float bienestar = LeerBienestar();
-            rellenoObjetivo = bienestar / BienestarMax;
-            if (textoBienestar != null) textoBienestar.text = $"{bienestar:0}/{BienestarMax:0}";
+            float bienestar = GuardadoJuego.LeerBienestar();
+            rellenoObjetivo = bienestar / GuardadoJuego.BienestarMaximo;
+            if (textoBienestar != null) textoBienestar.text = $"{bienestar:0}/{GuardadoJuego.BienestarMaximo:0}";
 
             if (instantaneo)
             {
@@ -711,12 +808,11 @@ namespace PesoDeElegir.EventosImprevistos
         }
 
         /// <summary>Saldo del HUD: 85000 → "$85.000"; -5000 → "-$5.000"</summary>
-        private static string Dinero(int valor) =>
-            (valor < 0 ? "-" : "") + "$" + Mathf.Abs(valor).ToString("N0", FormatoPesos);
+        private static string Dinero(int valor) => GuardadoJuego.Pesos(valor);
 
         /// <summary>-30000 → "-$30.000"; 15000 → "+$15.000"</summary>
         private static string DineroConSigno(int valor) =>
-            (valor < 0 ? "-" : "+") + "$" + Mathf.Abs(valor).ToString("N0", FormatoPesos);
+            (valor < 0 ? "-" : "+") + GuardadoJuego.Pesos(Mathf.Abs(valor));
 
         /// <summary>100 → "+100 SANIDAD"; -20 → "-20 SANIDAD"</summary>
         private static string BienestarConSigno(float valor) =>
@@ -726,44 +822,151 @@ namespace PesoDeElegir.EventosImprevistos
         //  UTILIDADES DE PANELES
         // =====================================================================
 
-        private void MostrarSolo(GameObject panel)
+        private IEnumerable<GameObject> PanelesAsignados()
+        {
+            if (panelNarrativa != null) yield return panelNarrativa;
+            if (panelDecision != null) yield return panelDecision;
+            if (panelConsecuencia != null) yield return panelConsecuencia;
+            if (panelFin != null) yield return panelFin;
+        }
+
+        /// <summary>
+        /// "Contenedor" de cada panel = el objeto que cuelga del Canvas y lo contiene
+        /// (por ejemplo "Pre Desicion" para su cuadro naranja). Al ocultar el panel se oculta
+        /// también su contenedor, así no quedan botones sueltos visibles (como el "Siguiente").
+        /// Si el contenedor comparte otro panel, las barras o este motor, se usa solo el panel.
+        /// </summary>
+        private void CalcularContenedores()
+        {
+            contenedores.Clear();
+            var paneles = new List<GameObject>(PanelesAsignados());
+
+            foreach (GameObject panel in paneles)
+            {
+                RectTransform raiz = RaizBajoElCanvas(panel);
+                GameObject contenedor = raiz != null ? raiz.gameObject : panel;
+
+                bool compartido = false;
+                foreach (GameObject otro in paneles)
+                    if (otro != panel && otro.transform.IsChildOf(contenedor.transform)) compartido = true;
+
+                if ((barraIngresos != null && barraIngresos.transform.IsChildOf(contenedor.transform)) ||
+                    (barraBienestar != null && barraBienestar.transform.IsChildOf(contenedor.transform)) ||
+                    transform.IsChildOf(contenedor.transform) ||
+                    contenedor.GetComponent<Canvas>() != null)
+                    compartido = true;
+
+                contenedores[panel] = compartido ? panel : contenedor;
+            }
+        }
+
+        private GameObject ContenedorDe(GameObject panel) =>
+            panel != null && contenedores.TryGetValue(panel, out GameObject c) ? c : panel;
+
+        /// <summary>
+        /// Muestra un panel y oculta los demás. Además ENCIENDE todo lo necesario para que se vea:
+        /// sus padres (aunque un On Click viejo los haya apagado) y los objetos intermedios entre el
+        /// panel y sus textos/botones (por ejemplo el "Panel" naranja que estaba apagado en la escena).
+        /// </summary>
+        private void MostrarSolo(GameObject panel, params Component[] elementos)
         {
             OcultarPaneles();
             if (panel == null) return;
 
-            panel.SetActive(true);
+            GameObject contenedor = ContenedorDe(panel);
+            ActivarConPadres(panel.transform);
+
+            foreach (Component elemento in elementos)
+            {
+                if (elemento == null) continue;
+                Transform tope = elemento.transform.IsChildOf(contenedor.transform) ? contenedor.transform : null;
+                if (tope == null)
+                {
+                    Debug.LogWarning($"MotorEventos: '{elemento.name}' no está dentro de '{contenedor.name}'. " +
+                                     "Muévelo dentro de su panel en la jerarquía.", elemento);
+                    continue;
+                }
+                for (Transform p = elemento.transform.parent; p != null && p != tope; p = p.parent)
+                    if (!p.gameObject.activeSelf) p.gameObject.SetActive(true);
+            }
+
             if (!panel.activeInHierarchy)
-                Debug.LogError($"MotorEventos: '{panel.name}' se encendió pero no se ve porque uno de sus padres está apagado.");
+                Debug.LogError($"MotorEventos: '{panel.name}' se encendió pero no se ve. Revisa que el Canvas esté encendido.", panel);
+        }
+
+        /// <summary>Enciende el objeto y todos sus padres (hasta la raíz de la escena).</summary>
+        private static void ActivarConPadres(Transform t)
+        {
+            for (Transform p = t; p != null; p = p.parent)
+                if (!p.gameObject.activeSelf) p.gameObject.SetActive(true);
+        }
+
+        private void Ocultar(GameObject panel)
+        {
+            if (panel == null) return;
+            panel.SetActive(false);
+            GameObject contenedor = ContenedorDe(panel);
+            if (contenedor != null && contenedor != panel) contenedor.SetActive(false);
+        }
+
+        private void OcultarPaneles()
+        {
+            foreach (GameObject panel in PanelesAsignados()) Ocultar(panel);
         }
 
         /// <summary>
-        /// Revisa los dos errores de jerarquía que hacen que el panel de decisión no aparezca:
+        /// Los botones que maneja este motor no deben tener acciones en "On Click ()" del Inspector:
+        /// en la escena DI tenían SetActive viejos que apagaban "Pre Desicion" y dejaban la
+        /// pantalla vacía. Aquí se apagan (solo mientras corre el juego) y se avisa cuáles eran.
+        /// </summary>
+        private void DesactivarOnClickDelInspector()
+        {
+            var botones = new List<Button> { botonSiguiente, botonContinuar };
+            foreach (BotonOpcion ui in botonesOpcion)
+                if (ui?.boton != null) botones.Add(ui.boton);
+
+            foreach (Button boton in botones)
+            {
+                if (boton == null) continue;
+                int n = boton.onClick.GetPersistentEventCount();
+                for (int i = 0; i < n; i++)
+                {
+                    UnityEngine.Object destino = boton.onClick.GetPersistentTarget(i);
+                    Debug.LogWarning($"MotorEventos: el botón '{boton.name}' tiene en On Click → " +
+                                     $"{(destino != null ? destino.name : "(vacío)")}.{boton.onClick.GetPersistentMethodName(i)}. " +
+                                     "Se desactivó porque el motor maneja este botón. Bórralo del Inspector.", boton);
+                    boton.onClick.SetPersistentListenerState(i, UnityEventCallState.Off);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Revisa los errores de jerarquía que hacen que un panel no aparezca:
         ///  1. Un panel dentro de otro panel (al apagar uno se apaga el otro).
         ///  2. Este script dentro de un panel (al apagar el panel se apaga el motor).
+        ///  3. Casillas obligatorias sin asignar.
         /// </summary>
         private bool ValidarJerarquia()
         {
-            var paneles = new[] { panelNarrativa, panelDecision, panelConsecuencia, panelFin };
+            var paneles = new List<GameObject>(PanelesAsignados());
             bool ok = true;
 
             foreach (GameObject panel in paneles)
             {
-                if (panel == null) continue;
-
                 if (transform.IsChildOf(panel.transform))
                 {
                     Debug.LogError($"MotorEventos: este script está dentro de '{panel.name}'. Muévelo a un objeto " +
-                                   "fuera de los paneles (por ejemplo '--- Sistemas ---/MotorEventos').");
+                                   "fuera de los paneles (por ejemplo 'Eventos').", this);
                     ok = false;
                 }
 
                 foreach (GameObject otro in paneles)
                 {
-                    if (otro == null || otro == panel) continue;
+                    if (otro == panel) continue;
                     if (otro.transform.IsChildOf(panel.transform))
                     {
                         Debug.LogError($"MotorEventos: '{otro.name}' está dentro de '{panel.name}'. Los paneles deben ser " +
-                                       "hermanos (hijos directos del Canvas), no uno dentro del otro.");
+                                       "hermanos (hijos directos del Canvas), no uno dentro del otro.", this);
                         ok = false;
                     }
                 }
@@ -780,6 +983,11 @@ namespace PesoDeElegir.EventosImprevistos
             if (textoConsecuencia == null) faltantes.Add("Texto Consecuencia");
             if (botonContinuar == null) faltantes.Add("Boton Continuar");
 
+            bool hayBoton = false;
+            foreach (BotonOpcion ui in botonesOpcion)
+                if (ui?.boton != null) hayBoton = true;
+            if (!hayBoton) faltantes.Add("Botones Opcion (al menos uno)");
+
             if (faltantes.Count > 0)
             {
                 Debug.LogError($"MotorEventos en '{name}': faltan por asignar → {string.Join(", ", faltantes)}", this);
@@ -787,14 +995,6 @@ namespace PesoDeElegir.EventosImprevistos
             }
 
             return ok;
-        }
-
-        private void OcultarPaneles()
-        {
-            if (panelNarrativa != null) panelNarrativa.SetActive(false);
-            if (panelDecision != null) panelDecision.SetActive(false);
-            if (panelConsecuencia != null) panelConsecuencia.SetActive(false);
-            if (panelFin != null) panelFin.SetActive(false);
         }
 
         private static void MostrarLinea(TextMeshProUGUI campo, bool visible, string valor)
@@ -935,11 +1135,13 @@ namespace PesoDeElegir.EventosImprevistos
 
         /// <summary>
         /// Avisa de botones que están dentro de los paneles pero que el motor no controla
-        /// (como el "Button" suelto que aparece en pantalla). No los borra: solo dice cuáles son.
+        /// (como un "Button" suelto que aparece en pantalla). No los borra: solo dice cuáles son.
         /// </summary>
         private void AvisarBotonesSueltos()
         {
-            var conocidos = new HashSet<Button> { botonSiguiente, botonContinuar };
+            var conocidos = new HashSet<Button>();
+            if (botonSiguiente != null) conocidos.Add(botonSiguiente);
+            if (botonContinuar != null) conocidos.Add(botonContinuar);
             foreach (BotonOpcion ui in botonesOpcion)
                 if (ui != null && ui.boton != null) conocidos.Add(ui.boton);
 
@@ -954,12 +1156,19 @@ namespace PesoDeElegir.EventosImprevistos
                 }
             }
 
-            // Botón "Siguiente" fuera del panel de narrativa → se ve en todos los paneles
-            if (botonSiguiente != null && panelNarrativa != null && !botonSiguiente.transform.IsChildOf(panelNarrativa.transform))
-                Debug.LogWarning($"MotorEventos: '{botonSiguiente.name}' (Boton Siguiente) está FUERA de '{panelNarrativa.name}'. " +
-                                 "Arrástralo dentro del panel o se verá en las demás pantallas.", botonSiguiente);
-            if (botonContinuar != null && panelConsecuencia != null && !botonContinuar.transform.IsChildOf(panelConsecuencia.transform))
-                Debug.LogWarning($"MotorEventos: '{botonContinuar.name}' (Boton Continuar) está FUERA de '{panelConsecuencia.name}'.", botonContinuar);
+            // Siguiente / Continuar deben estar dentro de su panel o, al menos, del objeto que lo contiene
+            AvisarSiEstaFuera(botonSiguiente, panelNarrativa, "Boton Siguiente");
+            AvisarSiEstaFuera(botonContinuar, panelConsecuencia, "Boton Continuar");
+        }
+
+        private static void AvisarSiEstaFuera(Button boton, GameObject panel, string casilla)
+        {
+            if (boton == null || panel == null) return;
+            RectTransform raiz = RaizBajoElCanvas(panel);
+            Transform contenedor = raiz != null ? raiz : panel.transform;
+            if (!boton.transform.IsChildOf(contenedor))
+                Debug.LogWarning($"MotorEventos: '{boton.name}' ({casilla}) está FUERA de '{contenedor.name}'. " +
+                                 "Arrástralo dentro de su panel o se verá en las demás pantallas.", boton);
         }
 
         // =====================================================================
@@ -1045,6 +1254,73 @@ namespace PesoDeElegir.EventosImprevistos
                       "(ahora Scale = 1, mismo tamaño en pantalla).", raiz);
         }
 
+        // =====================================================================
+        //  PANEL DE CONSECUENCIA EN FRANJAS (los textos no se encimen)
+        // =====================================================================
+
+        /// <summary>
+        /// Ubica cada elemento del panel de consecuencia en su propia franja dentro del cuadro donde
+        /// está el texto principal (el cuadro naranja). Son proporciones del cuadro, así funciona en
+        /// cualquier resolución:
+        ///
+        ///   96% ┌──────────────────────────────┐
+        ///       │ Texto de la consecuencia     │
+        ///   46% ├──────────────────────────────┤
+        ///       │ Frase del personaje (GM1.1.4)│
+        ///   31% ├──────────────┬───────────────┤
+        ///       │  -$30.000    │  -14 SANIDAD  │
+        ///   18% ├──────────────┴───────────────┤
+        ///       │        [ Continuar ]         │
+        ///    3% └──────────────────────────────┘
+        /// </summary>
+        private void AcomodarPanelConsecuencia()
+        {
+            if (textoConsecuencia == null || !(textoConsecuencia.rectTransform.parent is RectTransform cuadro)) return;
+            if (cuadro.GetComponent<LayoutGroup>() != null) return; // ahí manda el Layout Group
+
+            Colocar(textoConsecuencia.rectTransform, cuadro, 0.04f, 0.96f, 0.46f, 0.96f, TextAlignmentOptions.TopLeft);
+            if (textoMensajePersonaje != null)
+                Colocar(textoMensajePersonaje.rectTransform, cuadro, 0.04f, 0.96f, 0.31f, 0.45f, TextAlignmentOptions.Center);
+            if (textoCambioDinero != null)
+                Colocar(textoCambioDinero.rectTransform, cuadro, 0.04f, 0.49f, 0.18f, 0.30f, TextAlignmentOptions.Center);
+            if (textoCambioBienestar != null)
+                Colocar(textoCambioBienestar.rectTransform, cuadro, 0.51f, 0.96f, 0.18f, 0.30f, TextAlignmentOptions.Center);
+            if (botonContinuar != null)
+                Colocar(botonContinuar.transform as RectTransform, cuadro, 0.25f, 0.75f, 0.03f, 0.16f);
+        }
+
+        private static void Colocar(RectTransform rt, RectTransform cuadro, float xMin, float xMax, float yMin, float yMax,
+                                    TextAlignmentOptions? alineacion = null)
+        {
+            if (rt == null) return;
+
+            // Si el elemento está en otro objeto, se pasa al mismo cuadro que el texto principal
+            if (rt.parent != cuadro)
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying) UnityEditor.Undo.SetTransformParent(rt, cuadro, "Acomodar consecuencia");
+                else rt.SetParent(cuadro, false);
+#else
+                rt.SetParent(cuadro, false);
+#endif
+            }
+
+            RegistrarDeshacer(rt);
+            rt.localScale = Vector3.one;
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchorMin = new Vector2(xMin, yMin);
+            rt.anchorMax = new Vector2(xMax, yMax);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+
+            TextMeshProUGUI texto = rt.GetComponent<TextMeshProUGUI>();
+            if (alineacion.HasValue && texto != null)
+            {
+                RegistrarDeshacer(texto);
+                texto.alignment = alineacion.Value;
+            }
+        }
+
         private static TextMeshProUGUI TextoDeBoton(Button boton) =>
             boton != null ? boton.GetComponentInChildren<TextMeshProUGUI>(true) : null;
 
@@ -1093,6 +1369,7 @@ namespace PesoDeElegir.EventosImprevistos
 #endif
             CorregirEscalas();
             ConfigurarTextos();
+            if (acomodarPanelConsecuencia) AcomodarPanelConsecuencia();
 
 #if UNITY_EDITOR
             foreach (UnityEngine.Object o in textos) UnityEditor.EditorUtility.SetDirty(o);
@@ -1106,22 +1383,41 @@ namespace PesoDeElegir.EventosImprevistos
         //  HERRAMIENTAS DE PRUEBA (clic derecho sobre el componente en el Inspector)
         // =====================================================================
 
-        // No borra datosBancarios.json ni datosBienestar.json: la partida real se conserva.
-        [ContextMenu("Pruebas/Reiniciar cobro y medallas de los eventos")]
-        private void ReiniciarPartida()
+        // Vuelve a jugar los eventos desde cero. NO borra el dinero ni el bienestar de la partida.
+        [ContextMenu("Pruebas/Reiniciar progreso de los eventos")]
+        private void ReiniciarProgreso()
         {
-            PlayerPrefs.DeleteKey(ClaveCobroDiferido);
+            GuardadoJuego.Borrar(ArchivoProgreso);
+            PlayerPrefs.DeleteKey(ClaveCobroAntigua);
+            IrAEventoImprevisto.TomarEscenaSiguiente(); // borra la escena de regreso guardada
             PlayerPrefs.DeleteKey("Medalla_companerismo");
             PlayerPrefs.DeleteKey("Medalla_buena_accion");
             PlayerPrefs.Save();
-            Debug.Log("MotorEventos: cobro diferido y medallas de los eventos reiniciados (la partida se conserva).");
+            Debug.Log("MotorEventos: progreso, cobro pendiente y medallas de los eventos reiniciados " +
+                      "(el dinero y el bienestar de la partida se conservan).");
+        }
+
+        // Partida completamente nueva: borra también datosBancarios.json y datosBienestar.json.
+        [ContextMenu("Pruebas/Empezar partida nueva (borra dinero y bienestar)")]
+        private void EmpezarPartidaNueva()
+        {
+            ReiniciarProgreso();
+            GuardadoJuego.Borrar(GuardadoJuego.ArchivoBanco);
+            GuardadoJuego.Borrar(GuardadoJuego.ArchivoBienestar);
+            Debug.Log("MotorEventos: partida borrada. Al dar Play se crea con una mesada nueva y bienestar 50.");
         }
 
         [ContextMenu("Pruebas/Mostrar estado en consola")]
         private void MostrarEstado()
         {
-            Debug.Log($"Saldo {Dinero(LeerCuenta()?.saldoActual ?? 0)} · Bienestar {LeerBienestar():0} · " +
-                      $"Cobro pendiente {PlayerPrefs.GetInt(ClaveCobroDiferido, 0) == 1} · " +
+            GuardadoJuego.Leer(ArchivoProgreso, out ProgresoEventos p);
+            string decisiones = p?.decisiones == null || p.decisiones.Count == 0
+                ? "ninguna"
+                : string.Join(" | ", p.decisiones.ConvertAll(d => $"{d.evento}: {d.opcion}"));
+
+            Debug.Log($"Saldo {Dinero(GuardadoJuego.LeerCuenta(crearSiFalta: false)?.saldoActual ?? 0)} · " +
+                      $"Bienestar {GuardadoJuego.LeerBienestar():0} · " +
+                      $"Cobro pendiente {(p?.cobroPendiente ?? false)} · Decisiones: {decisiones} · " +
                       $"Compañerismo {PlayerPrefs.GetInt("Medalla_companerismo", 0) == 1} · " +
                       $"Una buena acción {PlayerPrefs.GetInt("Medalla_buena_accion", 0) == 1}");
         }

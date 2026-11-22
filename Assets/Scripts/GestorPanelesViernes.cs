@@ -16,7 +16,6 @@ public class GestorPanelesViernes : MonoBehaviour
     [Header("Paneles de las decisiones")]
     [SerializeField] private GameObject segundoPanelNoHacerTarea;
     [SerializeField] private GameObject tercerPanelNoHacerTarea;
-
     [SerializeField] private GameObject segundoPanelPedirCopia;
     [SerializeField] private GameObject tercerPanelPedirCopia;
 
@@ -34,9 +33,20 @@ public class GestorPanelesViernes : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        if (CargarProgresoGuardado())
-        return;
+        // Intentar recuperar primero el checkpoint semanal.
+        if (RestaurarCheckpoint())
+        {
+            if (bienestarViernes != null)
+            {
+                bienestarViernes.CargarProgreso();
+            }
 
+            Debug.Log("Progreso del viernes recuperado.");
+            return;
+        }
+
+        // Si no existe checkpoint del viernes,
+        // comenzar un progreso nuevo.
         if (bienestarViernes != null)
         {
             bienestarViernes.InicializarNuevoProgreso();
@@ -51,6 +61,10 @@ public class GestorPanelesViernes : MonoBehaviour
             MostrarPanel(mision);
         }
     }
+
+    // ==========================================
+    // MOSTRAR PANELES
+    // ==========================================
 
     public void MostrarPanel(GameObject panelDestino)
     {
@@ -72,27 +86,33 @@ public class GestorPanelesViernes : MonoBehaviour
         {
             botonSiguienteMision.SetActive(false);
         }
+
+        // Guardar el ultimo panel en el sistema semanal.
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelDestino.name
+        );
     }
 
-    private void OcultarTodosLosPaneles()
+    private GameObject[] ObtenerTodosLosPaneles()
     {
-        GameObject[] paneles =
+        return new GameObject[]
         {
             mision,
             introduccion,
             panelDecision,
-
             decisionNoHacerTarea,
             decisionPedirCopia,
-
             segundoPanelNoHacerTarea,
             tercerPanelNoHacerTarea,
-
             segundoPanelPedirCopia,
             tercerPanelPedirCopia
         };
+    }
 
-        foreach (GameObject panel in paneles)
+    private void OcultarTodosLosPaneles()
+    {
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
         {
             if (panel != null)
             {
@@ -101,7 +121,68 @@ public class GestorPanelesViernes : MonoBehaviour
         }
     }
 
+    // ==========================================
+    // RECUPERAR CHECKPOINT SEMANAL
+    // ==========================================
+
+    private bool RestaurarCheckpoint()
+    {
+        if (!SistemaGuardadoSemanal.IntentarObtenerPanel(
+            SceneManager.GetActiveScene().name,
+            out string nombrePanel))
+        {
+            return false;
+        }
+
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
+        {
+            if (panel != null && panel.name == nombrePanel)
+            {
+                // Mostrar directamente sin reiniciar decisiones.
+                MostrarPanel(panel);
+
+                Debug.Log(
+                    "Viernes: panel recuperado: " + nombrePanel
+                );
+
+                return true;
+            }
+        }
+
+        Debug.LogWarning(
+            "Viernes: no se encontro el panel guardado: " + nombrePanel
+        );
+
+        return false;
+    }
+
+    // ==========================================
+    // GUARDAR PROGRESO COMPLETO DEL VIERNES
+    // ==========================================
+
+    public void GuardarProgreso()
+    {
+        if (panelActual != null)
+        {
+            SistemaGuardadoSemanal.GuardarCheckpoint(
+                SceneManager.GetActiveScene().name,
+                panelActual.name
+            );
+        }
+
+        if (bienestarViernes != null)
+        {
+            bienestarViernes.GuardarProgreso();
+        }
+
+        SistemaGuardadoSemanal.GuardarTodo();
+
+        Debug.Log("Progreso completo del viernes guardado.");
+    }
+
+    // ==========================================
     // PANELES PRINCIPALES
+    // ==========================================
 
     public void IrAMision()
     {
@@ -123,7 +204,9 @@ public class GestorPanelesViernes : MonoBehaviour
         }
     }
 
+    // ==========================================
     // DECISION: NO HACER LA TAREA
+    // ==========================================
 
     public void IrADecisionNoHacerTarea()
     {
@@ -140,7 +223,9 @@ public class GestorPanelesViernes : MonoBehaviour
         MostrarPanel(tercerPanelNoHacerTarea);
     }
 
+    // ==========================================
     // DECISION: PEDIR COPIA
+    // ==========================================
 
     public void IrADecisionPedirCopia()
     {
@@ -157,7 +242,9 @@ public class GestorPanelesViernes : MonoBehaviour
         MostrarPanel(tercerPanelPedirCopia);
     }
 
+    // ==========================================
     // VOLVER AL PANEL INICIAL
+    // ==========================================
 
     public void VolverAlPanelInicial()
     {
@@ -171,12 +258,15 @@ public class GestorPanelesViernes : MonoBehaviour
         }
     }
 
+    // ==========================================
     // CARGAR OTRA ESCENA
+    // ==========================================
 
     public void IrAEscena(string nombreEscena)
     {
         if (!string.IsNullOrWhiteSpace(nombreEscena))
         {
+            Time.timeScale = 1f;
             SceneManager.LoadScene(nombreEscena);
         }
         else
@@ -188,92 +278,25 @@ public class GestorPanelesViernes : MonoBehaviour
     }
 
     // ==========================================
-// GUARDAR PROGRESO DEL VIERNES
-// ==========================================
+    // GUARDAR Y SALIR AL MENU PRINCIPAL
+    // ==========================================
 
-public void GuardarProgreso()
-{
-    if (panelActual == null)
+    public void GuardarYSalir(string nombreEscenaMenu)
     {
-        Debug.LogWarning("No hay un panel actual para guardar.");
-        return;
-    }
+        GuardarProgreso();
 
-    PlayerPrefs.SetString(
-        "Viernes_PanelActual",
-        panelActual.name
-    );
+        Time.timeScale = 1f;
 
-    PlayerPrefs.SetInt("Viernes_ProgresoGuardado", 1);
-
-    PlayerPrefs.Save();
-
-    Debug.Log("Progreso guardado en: " + panelActual.name);
-}
-
-// ==========================================
-// RECUPERAR PROGRESO DEL VIERNES
-// ==========================================
-
-public bool CargarProgresoGuardado()
-{
-    if (PlayerPrefs.GetInt("Viernes_ProgresoGuardado", 0) == 0)
-        return false;
-
-    string nombrePanel = PlayerPrefs.GetString(
-        "Viernes_PanelActual",
-        ""
-    );
-
-    GameObject[] paneles =
-    {
-        mision,
-        introduccion,
-        panelDecision,
-        decisionNoHacerTarea,
-        decisionPedirCopia,
-        segundoPanelNoHacerTarea,
-        tercerPanelNoHacerTarea,
-        segundoPanelPedirCopia,
-        tercerPanelPedirCopia
-    };
-
-    foreach (GameObject panel in paneles)
-    {
-        if (panel != null && panel.name == nombrePanel)
+        if (!string.IsNullOrWhiteSpace(nombreEscenaMenu))
         {
-            MostrarPanel(panel);
-
-            Debug.Log("Progreso recuperado: " + nombrePanel);
-
-            return true;
+            SceneManager.LoadScene(nombreEscenaMenu);
+        }
+        else
+        {
+            Debug.LogError(
+                "No se ha asignado la escena del menu principal."
+            );
         }
     }
 
-    Debug.LogWarning(
-        "No se encontró el panel guardado: " + nombrePanel
-    );
-
-    return false;
-}
-
-// ==========================================
-// GUARDAR Y SALIR AL MENU PRINCIPAL
-// ==========================================
-
-public void GuardarYSalir(string nombreEscenaMenu)
-{
-    GuardarProgreso();
-
-    Time.timeScale = 1f;
-
-    if (!string.IsNullOrWhiteSpace(nombreEscenaMenu))
-    {
-        SceneManager.LoadScene(nombreEscenaMenu);
-    }
-    else
-    {
-        Debug.LogError("No se ha asignado la escena del menú principal.");
-    }
-}
 }

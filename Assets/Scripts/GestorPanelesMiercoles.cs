@@ -45,14 +45,25 @@ public class GestorPanelesMiercoles : MonoBehaviour
     [SerializeField] private GameObject septimoPanelNoPreguntarles;
     [SerializeField] private GameObject octavoPanelNoPreguntarles;
 
-    [Header("Configuración inicial")]
+    [Header("Configuracion inicial")]
     [SerializeField] private GameObject panelInicial;
     [SerializeField] private GameObject botonSiguienteMision;
+
+    [Header("Sistema de bienestar")]
+    [SerializeField] private BienestarColaboracionMiercoles bienestarMiercoles;
 
     private GameObject panelActual;
 
     private void Start()
     {
+        // Primero recuperar el progreso.
+        if (RestaurarCheckpoint())
+        {
+            Debug.Log("Progreso del miercoles recuperado correctamente.");
+            return;
+        }
+
+        // Si no hay partida guardada, iniciar normalmente.
         if (panelInicial != null)
         {
             MostrarPanel(panelInicial);
@@ -68,7 +79,7 @@ public class GestorPanelesMiercoles : MonoBehaviour
         if (panelDestino == null)
         {
             Debug.LogWarning(
-                "GestorPanelesMiercoles: el panel de destino no está asignado."
+                "GestorPanelesMiercoles: el panel de destino no esta asignado."
             );
             return;
         }
@@ -83,15 +94,19 @@ public class GestorPanelesMiercoles : MonoBehaviour
         {
             botonSiguienteMision.SetActive(false);
         }
+
+        // Registrar el ultimo panel visitado.
+        SistemaGuardadoSemanal.GuardarCheckpoint(
+            SceneManager.GetActiveScene().name,
+            panelDestino.name
+        );
     }
 
-    private void OcultarTodosLosPaneles()
+    private GameObject[] ObtenerTodosLosPaneles()
     {
-        GameObject[] paneles =
+        return new GameObject[]
         {
             mision,
-
-            // Nuevos paneles iniciales
             consejoMiercoles,
             conversacionpadre,
             conversacionpadre2,
@@ -125,14 +140,49 @@ public class GestorPanelesMiercoles : MonoBehaviour
             septimoPanelNoPreguntarles,
             octavoPanelNoPreguntarles
         };
+    }
 
-        foreach (GameObject panel in paneles)
+    private void OcultarTodosLosPaneles()
+    {
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
         {
             if (panel != null)
             {
                 panel.SetActive(false);
             }
         }
+    }
+
+    // RECUPERAR EL ULTIMO PANEL GUARDADO
+
+    private bool RestaurarCheckpoint()
+    {
+        if (!SistemaGuardadoSemanal.IntentarObtenerPanel(
+            SceneManager.GetActiveScene().name,
+            out string nombrePanel))
+        {
+            return false;
+        }
+
+        foreach (GameObject panel in ObtenerTodosLosPaneles())
+        {
+            if (panel != null && panel.name == nombrePanel)
+            {
+                MostrarPanel(panel);
+
+                Debug.Log(
+                    "Miercoles: panel recuperado: " + nombrePanel
+                );
+
+                return true;
+            }
+        }
+
+        Debug.LogWarning(
+            "Miercoles: no se encontro el panel guardado: " + nombrePanel
+        );
+
+        return false;
     }
 
     // PANEL PRINCIPAL
@@ -315,7 +365,7 @@ public class GestorPanelesMiercoles : MonoBehaviour
         else
         {
             Debug.LogWarning(
-                "GestorPanelesMiercoles: el nombre de la escena está vacío."
+                "GestorPanelesMiercoles: el nombre de la escena esta vacio."
             );
         }
     }
@@ -328,4 +378,41 @@ public class GestorPanelesMiercoles : MonoBehaviour
             panelActual = null;
         }
     }
+
+    // GUARDAR PROGRESO DEL MIERCOLES
+
+public void GuardarProgreso()
+{
+    if (panelActual == null)
+    {
+        Debug.LogWarning(
+            "Miercoles: no hay un panel actual para guardar."
+        );
+        return;
+    }
+
+    // Guardar bienestar y decisiones
+    if (bienestarMiercoles != null)
+    {
+        bienestarMiercoles.GuardarProgreso();
+    }
+    else
+    {
+        Debug.LogWarning(
+            "No se asigno BienestarColaboracionMiercoles."
+        );
+    }
+
+    SistemaGuardadoSemanal.GuardarCheckpoint(
+        SceneManager.GetActiveScene().name,
+        panelActual.name
+    );
+
+    PlayerPrefs.Save();
+
+    Debug.Log(
+        "Miercoles: progreso guardado correctamente en: "
+        + panelActual.name
+    );
+}
 }
