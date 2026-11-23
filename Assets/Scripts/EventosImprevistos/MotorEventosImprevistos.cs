@@ -189,6 +189,11 @@ namespace PesoDeElegir.EventosImprevistos
         [Tooltip("Acomoda los textos del panel de consecuencia uno debajo del otro dentro del cuadro naranja " +
                  "(texto, frase del personaje, dinero, bienestar y Continuar) para que no se encimen.")]
         [SerializeField] private bool acomodarPanelConsecuencia = true;
+        [Tooltip("Encendido: cada texto ocupa TODO su cuadro (menos el margen), así la letra tiene espacio para crecer. " +
+                 "No se aplica si el texto comparte el cuadro con botones u otros textos (para que no se encimen).")]
+        [SerializeField] private bool textosLlenanSuCuadro = true;
+        [Tooltip("Escribe en la consola el tamaño de cada texto, el de su cuadro y la letra final, para ver por qué se ve pequeño")]
+        [SerializeField] private bool diagnosticoTextos = true;
 
         [Header("Fin y conexiones con otros sistemas")]
         [SerializeField] private GameObject panelFin;
@@ -1114,7 +1119,14 @@ namespace PesoDeElegir.EventosImprevistos
             float yMin = Mathf.Max(abajoIzq.y, yMinPermitido);
             float yMax = Mathf.Min(arribaDer.y, yMaxPermitido);
 
-            // 2. Tamaño mínimo: angosto (o fuera del padre) → todo el ancho; bajito → todo el alto
+            // 2. Llenar el cuadro: el texto usa todo el espacio libre de su padre
+            if (textosLlenanSuCuadro && !CompartePadre(rt))
+            {
+                xMin = xMinPermitido; xMax = xMaxPermitido;
+                yMin = yMinPermitido; yMax = yMaxPermitido;
+            }
+
+            // 3. Tamaño mínimo: angosto (o fuera del padre) → todo el ancho; bajito → todo el alto
             if (xMax - xMin < Mathf.Max(60f, anchoPermitido * 0.4f)) { xMin = xMinPermitido; xMax = xMaxPermitido; }
             if (yMax - yMin < Mathf.Max(30f, altoPermitido * 0.2f)) { yMin = yMinPermitido; yMax = yMaxPermitido; }
 
@@ -1124,13 +1136,29 @@ namespace PesoDeElegir.EventosImprevistos
 
             RegistrarDeshacer(rt);
 
-            // 3. Se fija con anclas relativas al padre: así sigue dentro aunque cambie la resolución
+            // 4. Se fija con anclas relativas al padre: así sigue dentro aunque cambie la resolución
             rt.anchorMin = new Vector2((xMin - area.xMin) / area.width, (yMin - area.yMin) / area.height);
             rt.anchorMax = new Vector2((xMax - area.xMin) / area.width, (yMax - area.yMin) / area.height);
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
 
             Debug.Log($"MotorEventos: '{rt.name}' se salía de '{padre.name}' (o era muy angosto) y se ajustó para quedar dentro.", rt);
+        }
+
+        /// <summary>
+        /// true si en el mismo padre hay botones u otros textos visibles: en ese caso el texto
+        /// no se estira a todo el cuadro, porque quedaría encima de ellos.
+        /// </summary>
+        private static bool CompartePadre(RectTransform rt)
+        {
+            foreach (Transform hermano in rt.parent)
+            {
+                if (hermano == rt.transform || !hermano.gameObject.activeSelf) continue;
+                if (hermano.GetComponentInChildren<Button>(true) != null ||
+                    hermano.GetComponentInChildren<TMP_Text>(true) != null)
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -1332,6 +1360,17 @@ namespace PesoDeElegir.EventosImprevistos
             if (!forzarTextosDentroDelCuadro || !campo.gameObject.activeInHierarchy) return;
 
             campo.ForceMeshUpdate();
+
+            if (diagnosticoTextos)
+            {
+                Rect r = campo.rectTransform.rect;
+                Rect c = campo.rectTransform.parent is RectTransform padre ? padre.rect : r;
+                Vector3 escala = campo.rectTransform.lossyScale;
+                Debug.Log($"[Textos] '{campo.name}': cuadro del texto {r.width:0}×{r.height:0}, " +
+                          $"cuadro padre {c.width:0}×{c.height:0}, letra final {campo.fontSize:0} " +
+                          $"(mín {campo.fontSizeMin:0}, máx {campo.fontSizeMax:0}), escala en pantalla {escala.x:0.###}×{escala.y:0.###}", campo);
+            }
+
             if (campo.isTextOverflowing)
                 Debug.LogWarning($"MotorEventos: el texto de '{campo.name}' no cabe ni con letra {tamanoMinimo:0}; " +
                                  "se cortó con '…'. Agranda su cuadro o baja 'Tamano Minimo'.", campo);
