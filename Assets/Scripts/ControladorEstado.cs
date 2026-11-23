@@ -72,4 +72,17 @@ public class ControladorBarraIngresos : MonoBehaviour
             barraIngresos.fillAmount = Mathf.Lerp(barraIngresos.fillAmount, saldoObjetivo, Time.deltaTime * velocidadAnimacion);
         }
     }
+
+
+    // Apaga el objeto que arrastres en la casilla del On Click
+    public void ApagarObjeto(GameObject objeto)
+    {
+        if (objeto != null) objeto.SetActive(false);
+    }
+
+    // Prende el objeto que arrastres en la casilla del On Click
+    public void PrenderObjeto(GameObject objeto)
+    {
+        if (objeto != null) objeto.SetActive(true);
+    }
 }
