@@ -11,6 +11,8 @@ public class ControladorEstado : MonoBehaviour
     [Header("Asigna los Paneles")]
     public GameObject panelApagar;  // El panel que va a desaparecer
     public GameObject panelPrender; // El panel que va a aparecer en el gris
+    public GameObject objetoApagarClic3;
+    public GameObject objetoPrenderClic3;
 
     [Header("Configuración")]
     public float velocidad = 0.5f;
@@ -74,7 +76,6 @@ public class ControladorEstado : MonoBehaviour
             }
         }
     }
-
     // Función asignada al botón (On Click)
     public void PresionarBoton()
     {
@@ -93,11 +94,20 @@ public class ControladorEstado : MonoBehaviour
 
             estadoAnimacion = 3;
         }
-        else if (numeroClics >= 3)
+        else if (numeroClics == 3)
         {
-            // TERCER CLIC: Cambia de escena
+            // TERCER CLIC: Apaga un objeto específico y prende otro
+            if (objetoApagarClic3 != null) objetoApagarClic3.SetActive(false);
+            if (objetoPrenderClic3 != null) objetoPrenderClic3.SetActive(true);
+        }
+        else if (numeroClics >= 4)
+        {
+            // CUARTO CLIC: Cambia de escena
             // Asegúrate de que la escena esté añadida en File > Build Settings
             SceneManager.LoadScene(nombreEscenaNueva);
         }
     }
+
+
+
 }
