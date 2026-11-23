@@ -6,6 +6,8 @@ public class GestorPanelesViernes : MonoBehaviour
 {
     [Header("Paneles principales")]
     [SerializeField] private GameObject mision;
+    [SerializeField] private GameObject desayuno;
+    [SerializeField] private GameObject bus;
     [SerializeField] private GameObject introduccion;
     [SerializeField] private GameObject panelDecision;
 
@@ -33,7 +35,6 @@ public class GestorPanelesViernes : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // Intentar recuperar primero el checkpoint semanal.
         if (RestaurarCheckpoint())
         {
             if (bienestarViernes != null)
@@ -45,8 +46,6 @@ public class GestorPanelesViernes : MonoBehaviour
             return;
         }
 
-        // Si no existe checkpoint del viernes,
-        // comenzar un progreso nuevo.
         if (bienestarViernes != null)
         {
             bienestarViernes.InicializarNuevoProgreso();
@@ -87,7 +86,6 @@ public class GestorPanelesViernes : MonoBehaviour
             botonSiguienteMision.SetActive(false);
         }
 
-        // Guardar el ultimo panel en el sistema semanal.
         SistemaGuardadoSemanal.GuardarCheckpoint(
             SceneManager.GetActiveScene().name,
             panelDestino.name
@@ -99,6 +97,8 @@ public class GestorPanelesViernes : MonoBehaviour
         return new GameObject[]
         {
             mision,
+            desayuno,
+            bus,
             introduccion,
             panelDecision,
             decisionNoHacerTarea,
@@ -138,7 +138,6 @@ public class GestorPanelesViernes : MonoBehaviour
         {
             if (panel != null && panel.name == nombrePanel)
             {
-                // Mostrar directamente sin reiniciar decisiones.
                 MostrarPanel(panel);
 
                 Debug.Log(
@@ -187,6 +186,16 @@ public class GestorPanelesViernes : MonoBehaviour
     public void IrAMision()
     {
         MostrarPanel(mision);
+    }
+
+    public void IrADesayuno()
+    {
+        MostrarPanel(desayuno);
+    }
+
+    public void IrABus()
+    {
+        MostrarPanel(bus);
     }
 
     public void IrAIntroduccion()
@@ -298,5 +307,4 @@ public class GestorPanelesViernes : MonoBehaviour
             );
         }
     }
-
 }
