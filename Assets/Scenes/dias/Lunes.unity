@@ -3736,6 +3736,147 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &208476512
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 208476515}
+  - component: {fileID: 208476514}
+  - component: {fileID: 208476513}
+  m_Layer: 0
+  m_Name: SonidoClickUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &208476513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208476512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5c7541f2265a7648bdefca5b5687ab6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!82 &208476514
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208476512}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: bd3d4888e58376846904ddc2a7d547af, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 122
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &208476515
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 208476512}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.5949948, y: 0.5422108, z: -337.29517}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &218288782
 GameObject:
   m_ObjectHideFlags: 0
@@ -4772,6 +4913,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &290613586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5461,6 +5614,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &320529557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5996,6 +6161,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476512}
+        m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6958,6 +7135,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476512}
+        m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -8415,6 +8604,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &539501682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9341,6 +9542,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &589922819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10189,6 +10402,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &679817344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10718,6 +10943,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11396,44 +11633,140 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 765087944}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 208476513}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ContinuarJuego
       objectReference: {fileID: 0}
     - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ReproducirClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: MenuPausaSemanal, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: SonidoClickUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1222997397992872685, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 765087944}
     - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 208476513}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SalirAlMenuPrincipal
       objectReference: {fileID: 0}
     - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ReproducirClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: MenuPausaSemanal, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: SonidoClickUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1537093227010830051, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 1799255367305267609, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 208476513}
+    - target: {fileID: 1799255367305267609, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ReproducirClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 1799255367305267609, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SonidoClickUI, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 2063486094263274247, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: gestorLunes
       value: 
       objectReference: {fileID: 89639790}
     - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 765087944}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 208476513}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: GuardarYSalir
       objectReference: {fileID: 0}
     - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ReproducirClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: MenuPausaSemanal, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: SonidoClickUI, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3481553923012027672, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8371613541547781988, guid: 8926e2eb740d9274e879412cfcff66bc, type: 3}
       propertyPath: m_Camera
@@ -11730,6 +12063,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &777567176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11938,6 +12283,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -12954,6 +13311,188 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &835157360
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 990547285}
+    m_Modifications:
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 89639790}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: IrABus
+      objectReference: {fileID: 0}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GestorPanelesLunes, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 230868605625353353, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 565319542542253391, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_Name
+      value: desayuno
+      objectReference: {fileID: 0}
+    - target: {fileID: 565319542542253391, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 307.80002
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 307.80002
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 307.80002
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -66.149994
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1441.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -30759.871
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4224209459285300775, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316731166599749422, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_fontSize
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316731166599749422, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.x
+      value: 196.64731
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316731166599749422, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.y
+      value: 31.717392
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316731166599749422, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.z
+      value: 202.99094
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316731166599749422, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 6935494985825166230, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -26
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 89639790}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: IrABus
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GestorPanelesLunes, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7510405284758061954, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8542425267176679578, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8961619964475776494, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.w
+      value: 111.0105
+      objectReference: {fileID: 0}
+    - target: {fileID: 8961619964475776494, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.x
+      value: 190.30392
+      objectReference: {fileID: 0}
+    - target: {fileID: 8961619964475776494, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.y
+      value: 82.46472
+      objectReference: {fileID: 0}
+    - target: {fileID: 8961619964475776494, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+      propertyPath: m_margin.z
+      value: 199.8193
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+--- !u!4 &835157362 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 643509049375326968, guid: a58186f623f2ca840b3486e6bf5920fa, type: 3}
+  m_PrefabInstance: {fileID: 835157360}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &855611746
 GameObject:
   m_ObjectHideFlags: 0
@@ -14169,6 +14708,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &997209535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14962,6 +15513,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -20610,6 +21173,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1453139217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23078,6 +23653,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1588332061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23202,6 +23789,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25074,6 +25673,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1766903635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25282,6 +25893,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25542,6 +26165,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1778693312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25666,6 +26301,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29266,6 +29913,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2024899178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29533,6 +30192,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29834,6 +30505,18 @@ MonoBehaviour:
       - m_Target: {fileID: 765087944}
         m_TargetAssemblyTypeName: MenuPausaSemanal, Assembly-CSharp
         m_MethodName: AlternarPausa
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 208476513}
+        m_TargetAssemblyTypeName: SonidoClickUI, Assembly-CSharp
+        m_MethodName: ReproducirClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -30734,3 +31417,4 @@ SceneRoots:
   - {fileID: 329097904}
   - {fileID: 965891139}
   - {fileID: 127934223}
+  - {fileID: 208476515}
