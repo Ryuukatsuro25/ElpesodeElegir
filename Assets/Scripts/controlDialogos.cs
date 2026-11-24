@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -98,8 +97,7 @@ public class controlDialogos : MonoBehaviour
             StopCoroutine(escrituraCoroutine);
         }
 
-        textDisplay.text = textArray[indice];
-        textDisplay.ForceMeshUpdate();
+        textDisplay.text = textArray[indice] ?? string.Empty;
         textDisplay.maxVisibleCharacters = 0;
 
         escrituraCoroutine = StartCoroutine(EscribirTexto());
@@ -109,21 +107,37 @@ public class controlDialogos : MonoBehaviour
     {
         escribiendo = true;
 
+        // Esperar un frame asegura que TextMeshPro haya inicializado textInfo
+        yield return null;
+
+        if (textDisplay == null)
+        {
+            escribiendo = false;
+            yield break;
+        }
+
+        textDisplay.ForceMeshUpdate();
+
         bool textoRapido = PlayerPrefs.GetInt("TextoRapido", 0) == 1;
+        float velocidad = textoRapido ? velocidadRapida : velocidadNormal;
 
-        float velocidad = textoRapido
-            ? velocidadRapida
-            : velocidadNormal;
-
-        int totalCaracteres = textDisplay.textInfo.characterCount;
+        int totalCaracteres = (textDisplay.textInfo != null && textDisplay.textInfo.characterCount > 0)
+            ? textDisplay.textInfo.characterCount
+            : textDisplay.text.Length;
 
         for (int i = 0; i < totalCaracteres; i++)
         {
+            if (textDisplay == null) yield break;
+
             textDisplay.maxVisibleCharacters = i + 1;
             yield return new WaitForSeconds(velocidad);
         }
 
-        textDisplay.maxVisibleCharacters = totalCaracteres;
+        if (textDisplay != null)
+        {
+            textDisplay.maxVisibleCharacters = totalCaracteres;
+        }
+
         escribiendo = false;
         escrituraCoroutine = null;
     }
@@ -141,7 +155,16 @@ public class controlDialogos : MonoBehaviour
                 escrituraCoroutine = null;
             }
 
-            textDisplay.maxVisibleCharacters = textDisplay.textInfo.characterCount;
+            if (textDisplay != null)
+            {
+                textDisplay.ForceMeshUpdate();
+                int total = (textDisplay.textInfo != null && textDisplay.textInfo.characterCount > 0)
+                    ? textDisplay.textInfo.characterCount
+                    : textDisplay.text.Length;
+
+                textDisplay.maxVisibleCharacters = total;
+            }
+
             escribiendo = false;
             return;
         }
@@ -279,6 +302,16 @@ public class controlDialogos : MonoBehaviour
             {
                 op.boton.gameObject.SetActive(state);
             }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (escrituraCoroutine != null)
+        {
+            StopCoroutine(escrituraCoroutine);
+            escrituraCoroutine = null;
+            escribiendo = false;
         }
     }
 
