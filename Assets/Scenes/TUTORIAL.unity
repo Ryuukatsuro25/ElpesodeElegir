@@ -1433,23 +1433,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 6
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 2254900638108499728, guid: 09566c45398fdb04f8551dac5d0bf138, type: 3}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
+      value: CargarEscena
       objectReference: {fileID: 0}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: UnityEngine.GameObject, UnityEngine
+      value: CambioDeEscena, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
+      value: menu 1
       objectReference: {fileID: 0}
     - target: {fileID: 3570960362308836952, guid: 6d378da39439a79408712c7ea4abf383, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -1817,7 +1821,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &552616502
 Transform:
   m_ObjectHideFlags: 0
