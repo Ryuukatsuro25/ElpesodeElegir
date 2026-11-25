@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/menu.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/menu 1.unity
+    path: Assets/Scenes/dias/menu 1.unity
     guid: a1d7a89e885908f4db2e360471bf2915
   - enabled: 1
     path: Assets/Scenes/Conversacion padre.unity
