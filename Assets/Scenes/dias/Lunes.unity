@@ -6212,6 +6212,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 614066010}
+        m_TargetAssemblyTypeName: UIBarrasController, Assembly-CSharp
+        m_MethodName: ModificarBienestar
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: -20
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &377520588
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12691,6 +12703,38 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 614066010}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 15000
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17116,7 +17160,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 188873091114480350, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 694562869609717678, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_Name
@@ -17137,6 +17181,38 @@ PrefabInstance:
     - target: {fileID: 1486781215741351466, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 5.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 614066010}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 2574005335747195525, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3408170673383937902, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -17262,6 +17338,38 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 614066010}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 3500
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095457745355192226, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6881206616080785710, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -17289,6 +17397,10 @@ PrefabInstance:
     - target: {fileID: 6881206616080785710, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8866414906809975975, guid: 05f6250664e5b7045b4958e1794925c2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -30646,18 +30758,30 @@ PrefabInstance:
       objectReference: {fileID: 1174687784}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 89639790}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 614066010}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
@@ -30665,11 +30789,27 @@ PrefabInstance:
       value: IrADesayuno
       objectReference: {fileID: 0}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ModificarBienestar
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: GestorPanelesLunes, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_FloatArgument
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8035351140249089213, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 8133456414475770303, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
@@ -30682,7 +30822,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8995565557311666149, guid: 81f08450514595e408045a6ab0f06d63, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:

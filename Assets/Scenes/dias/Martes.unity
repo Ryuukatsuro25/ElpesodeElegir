@@ -1681,7 +1681,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &99595073
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10161,18 +10161,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 142399026}
-        m_TargetAssemblyTypeName: PanelFlowManager, Assembly-CSharp
-        m_MethodName: CambiarPanel
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 332058388}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1603592349}
         m_TargetAssemblyTypeName: UIBarrasController, Assembly-CSharp
         m_MethodName: PrecioGasto
@@ -10182,6 +10170,18 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 15000
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 142399026}
+        m_TargetAssemblyTypeName: PanelFlowManager, Assembly-CSharp
+        m_MethodName: CambiarPanel
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 332058388}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
@@ -20224,6 +20224,38 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1603592349}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 15000
+      objectReference: {fileID: 0}
+    - target: {fileID: 9042917936543399986, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20289,6 +20321,70 @@ PrefabInstance:
     - target: {fileID: 6489011927664989707, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1603592349}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 3500
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649293584779431937, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1603592349}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: PrecioGasto
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UIBarrasController, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_FloatArgument
+      value: 20000
+      objectReference: {fileID: 0}
+    - target: {fileID: 8731925419990511380, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

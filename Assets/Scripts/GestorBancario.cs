@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
@@ -36,26 +35,45 @@ public class GestorBancario : MonoBehaviour
     private DatosBancarios datos;
     private string rutaArchivo;
 
-    // Propiedades para consultar los valores bancarios
-    // desde otros scripts sin modificar directamente los datos.
     public int SaldoActual => datos != null ? datos.saldoActual : 0;
-
     public int IngresosTotales => datos != null ? datos.ingresosTotales : 0;
-
     public int GastosTotales => datos != null ? datos.gastosTotales : 0;
 
     private void Awake()
     {
-        rutaArchivo = Application.persistentDataPath + "/datosBancarios.json";
+        rutaArchivo = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
+        CargarDatos();
+    }
+
+    private void OnEnable()
+    {
+        if (string.IsNullOrEmpty(rutaArchivo))
+        {
+            rutaArchivo = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
+        }
+
         CargarDatos();
     }
 
     public void CargarDatos()
     {
+        if (string.IsNullOrEmpty(rutaArchivo))
+        {
+            rutaArchivo = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
+        }
+
         if (File.Exists(rutaArchivo))
         {
-            string json = File.ReadAllText(rutaArchivo);
-            datos = JsonUtility.FromJson<DatosBancarios>(json);
+            try
+            {
+                string json = File.ReadAllText(rutaArchivo);
+                datos = JsonUtility.FromJson<DatosBancarios>(json);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"Error al leer datosBancarios.json: {ex.Message}");
+                datos = null;
+            }
 
             if (datos == null)
             {
@@ -75,6 +93,7 @@ public class GestorBancario : MonoBehaviour
         }
 
         ActualizarUI();
+        SincronizarUIBarras();
     }
 
     private void GenerarMesadaInicial()
@@ -110,12 +129,9 @@ public class GestorBancario : MonoBehaviour
 
     public void AgregarTransaccion(int monto, string descripcion, bool esIngreso)
     {
-        if (datos == null)
-        {
-            datos = new DatosBancarios();
-        }
+        // Re-lee lo último guardado para no pisar cambios hechos en otra escena o controlador
+        CargarDatos();
 
-        // Evita registrar montos negativos por error.
         monto = Mathf.Abs(monto);
 
         Transaccion nueva = new Transaccion
@@ -140,9 +156,19 @@ public class GestorBancario : MonoBehaviour
 
         GuardarDatos();
         ActualizarUI();
+        SincronizarUIBarras();
     }
 
-    private void ActualizarUI()
+    private void SincronizarUIBarras()
+    {
+        if (UIBarrasController.Instance != null && datos != null)
+        {
+            UIBarrasController.Instance.dinero = datos.saldoActual;
+            UIBarrasController.Instance.ActualizarUI();
+        }
+    }
+
+    public void ActualizarUI()
     {
         if (datos == null)
             return;
@@ -184,13 +210,12 @@ public class GestorBancario : MonoBehaviour
         if (File.Exists(rutaArchivo))
         {
             File.Delete(rutaArchivo);
-
             Debug.Log("Datos bancarios borrados.");
-
-            // Reinicia los datos en memoria y genera una nueva mesada.
-            datos = new DatosBancarios();
-            GenerarMesadaInicial();
-            ActualizarUI();
         }
+
+        datos = new DatosBancarios();
+        GenerarMesadaInicial();
+        ActualizarUI();
+        SincronizarUIBarras();
     }
 }

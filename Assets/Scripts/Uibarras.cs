@@ -65,7 +65,6 @@ public class UIBarrasController : MonoBehaviour
         rutaBienestar = Path.Combine(Application.persistentDataPath, "datosBienestar.json");
         rutaBancarios = Path.Combine(Application.persistentDataPath, "datosBancarios.json");
 
-        // Carga lo guardado en JSON para no perder progreso al cambiar de escena o reiniciar el singleton
         CargarDatos();
     }
 
@@ -81,19 +80,19 @@ public class UIBarrasController : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Limpia referencias destruidas de la escena anterior si aún no se asignan las nuevas
         if (barraBienestarImage == null) barraBienestarImage = null;
         if (barraDineroImage == null) barraDineroImage = null;
 
         ActualizarUI();
+        RefrescarGestorBancarioActivo();
     }
 
     private void Start()
     {
         ActualizarUI();
+        RefrescarGestorBancarioActivo();
     }
 
-    // Permite que cada escena (Lunes, Martes, etc.) registre sus imágenes activas
     public void AsignarReferenciasUI(Image nuevaBarraBienestar, Image nuevaBarraDinero)
     {
         if (nuevaBarraBienestar != null)
@@ -146,6 +145,7 @@ public class UIBarrasController : MonoBehaviour
 
         dinero = banco.saldoActual;
         ActualizarUI();
+        RefrescarGestorBancarioActivo();
     }
 
     public void ActualizarUI()
@@ -171,7 +171,6 @@ public class UIBarrasController : MonoBehaviour
         RegistrarTransaccion("PrecioAGastar", montoPersonalizado, false);
     }
 
-    // Llama este método ÚNICAMENTE desde el botón "Empezar juego" / "Nueva partida"
     public void ReiniciarPartida()
     {
         bienestarMental = Mathf.Clamp(bienestarInicial, 0f, bienestarMaximo);
@@ -189,23 +188,47 @@ public class UIBarrasController : MonoBehaviour
 
         GuardarDatosBancariosEnArchivo(bancoLimpio);
         ActualizarUI();
+        RefrescarGestorBancarioActivo();
+    }
+
+    private void RefrescarGestorBancarioActivo()
+    {
+        GestorBancario gestor = FindObjectOfType<GestorBancario>();
+        if (gestor != null)
+        {
+            gestor.CargarDatos();
+        }
     }
 
     private void GuardarDatosBienestar()
     {
-        DatosBienestar datosB = new DatosBienestar { valor = bienestarMental };
-        File.WriteAllText(rutaBienestar, JsonUtility.ToJson(datosB, true));
+        try
+        {
+            DatosBienestar datosB = new DatosBienestar { valor = bienestarMental };
+            File.WriteAllText(rutaBienestar, JsonUtility.ToJson(datosB, true));
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"Error al guardar datosBienestar.json: {ex.Message}");
+        }
     }
 
     private DatosBancarios CargarDatosBancariosDesdeArchivo()
     {
         if (File.Exists(rutaBancarios))
         {
-            string jsonD = File.ReadAllText(rutaBancarios);
-            DatosBancarios bancoCargado = JsonUtility.FromJson<DatosBancarios>(jsonD);
-            if (bancoCargado != null)
+            try
             {
-                return bancoCargado;
+                string jsonD = File.ReadAllText(rutaBancarios);
+                DatosBancarios bancoCargado = JsonUtility.FromJson<DatosBancarios>(jsonD);
+                if (bancoCargado != null)
+                {
+                    return bancoCargado;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"Error al leer datosBancarios.json: {ex.Message}");
             }
         }
 
@@ -217,22 +240,43 @@ public class UIBarrasController : MonoBehaviour
             historial = new TransaccionItem[0]
         };
     }
+    public void AplicarGasto(float monto)
+    {
+        if (UIBarrasController.Instance != null)
+        {
+            UIBarrasController.Instance.PrecioGasto(monto);
+        }
+    }
 
     private void GuardarDatosBancariosEnArchivo(DatosBancarios datos)
     {
-        string json = JsonUtility.ToJson(datos, true);
-        File.WriteAllText(rutaBancarios, json);
+        try
+        {
+            string json = JsonUtility.ToJson(datos, true);
+            File.WriteAllText(rutaBancarios, json);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"Error al guardar datosBancarios.json: {ex.Message}");
+        }
     }
 
     private void CargarDatos()
     {
         if (File.Exists(rutaBienestar))
         {
-            string jsonB = File.ReadAllText(rutaBienestar);
-            DatosBienestar datosB = JsonUtility.FromJson<DatosBienestar>(jsonB);
-            if (datosB != null)
+            try
             {
-                bienestarMental = Mathf.Clamp(datosB.valor, 0f, bienestarMaximo);
+                string jsonB = File.ReadAllText(rutaBienestar);
+                DatosBienestar datosB = JsonUtility.FromJson<DatosBienestar>(jsonB);
+                if (datosB != null)
+                {
+                    bienestarMental = Mathf.Clamp(datosB.valor, 0f, bienestarMaximo);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"Error al leer datosBienestar.json: {ex.Message}");
             }
         }
         else

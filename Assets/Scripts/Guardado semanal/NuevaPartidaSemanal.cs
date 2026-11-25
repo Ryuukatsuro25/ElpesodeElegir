@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,6 +24,12 @@ public class NuevaPartidaSemanal : MonoBehaviour
         SistemaGuardadoSemanal.EliminarCheckpoint();
 
         SistemaBienestarSemanal.Reiniciar();
+
+        // Reiniciar barras, saldo e historial en JSON.
+        if (UIBarrasController.Instance != null)
+        {
+            UIBarrasController.Instance.ReiniciarPartida();
+        }
 
         // Eliminar progreso del miercoles.
         PlayerPrefs.DeleteKey("Miercoles_Bienestar");
