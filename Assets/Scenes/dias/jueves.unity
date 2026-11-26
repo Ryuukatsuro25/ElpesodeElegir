@@ -637,7 +637,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Has decidido tomarte un caf\xE9 y seguir despierto"
+  m_text: Has decidido ir por el cafe y seguir con la mejor energia
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -748,7 +748,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000005722, y: -26}
+  m_AnchoredPosition: {x: 14, y: -40}
   m_SizeDelta: {x: 581.2677, y: 161.1865}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &22840198
@@ -771,8 +771,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Mejor no me echo la siesta, luego me levanto tarde para la clase; voy a
-    aprovechar a estudiar hasta que empiece la clase.
+  m_text: Mejor no me duermo y aprovecho para estudiar hasta que empiece la clase.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1552,7 +1551,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.106}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.2296, y: -41.663}
+  m_AnchoredPosition: {x: -2, y: 6}
   m_SizeDelta: {x: 730.1627, y: 457.44}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &89173696
@@ -1575,7 +1574,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Has decidido comprar en la tienda de la universidad
+  m_text: Has decidido comprar en la tienda que queda cerca de la universidad
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2912,8 +2911,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Duermes un rato y sientes que est\xE1s m\xE1s descansado y listo para
-    continuar el d\xEDa.\n+5 bienestar mental"
+  m_text: "Duermes entre clases y sientes que est\xE1s m\xE1s descansado y listo
+    para continuar el d\xEDa.\n+5 bienestar mental"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3535,7 +3534,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "UUUAA, ya me siento m\xE1s descansado y justo a tiempo para ir a clase"
+  m_text: Bofff, ya me siento mejor y con mucha mas energia para llevar mejor mi
+    dia.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -7345,7 +7345,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Durante la clase, la profesora les pide que se junten en grupo y realicen
-    una \"m\xE1quina de Goldberg\"; para ello necesitar\xE1s unos materiales.\nRecuerdas
+    un \"balon voluminoso\"; para ello necesitar\xE1s unos materiales.\nRecuerdas
     que, cuando ven\xEDas caminando, viste una tienda en la que podr\xEDas comprar
     lo que necesitas con descuento."
   m_isRightToLeft: 0
@@ -8267,6 +8267,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: desayuno 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4613818842439030727, guid: 34d416ce0e49ceb459370f44165af325, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9005,8 +9009,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Bueno, esta no parece una nota muy importante y, la verdad, ganas de gastar
-    en este trabajo no me sobran; voy a trabajar con lo que pueda encontrar por ah\xED."
+  m_text: Ok, la verdad no me parece tan mal esta nota, siento que me pudo haber
+    ido peor, pero me salve de milagro.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12124,7 +12128,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Decid\xED venir a casa y prepararme para ma\xF1ana"
+  m_text: "Decid\xED venir a casa y prepararme para mis clases de ma\xF1ana."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -12699,7 +12703,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Decid\xED venir a casa y prepararme para ma\xF1ana"
+  m_text: "Decid\xED venir a casa y prepararme para mis clases de ma\xF1ana."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13553,7 +13557,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Has decidido dormir un poco antes de clase
+  m_text: Has decidido descansar un poco entre clases
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -13580,7 +13584,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
+  m_fontSize: 66.75
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -15195,8 +15199,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Aunque perdiste 15mil\n\n Sacaste 5 en el trabajo puesto por la profesora,
-    te fue muy y fue resistente"
+  m_text: "Aunque perdiste 25mil\n\n Sacaste 5 en el trabajo puesto por la profesora,
+    te fue muy y fue efectivo en todos los sentidos."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -15428,7 +15432,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000005722, y: 0}
+  m_AnchoredPosition: {x: 12, y: -29}
   m_SizeDelta: {x: 581.2677, y: 161.1865}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1639619322
@@ -15451,7 +15455,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Ire a la tienda de la universidad, as\xED soluciono m\xE1s f\xE1cil"
+  m_text: Ire a la tienda de la u, asi me compro los mejores materiales
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -16285,9 +16289,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Mmh, la universidad est\xE1 vac\xEDa y a\xFAn queda un tiempo para mi
-    clase. \xBFSer\xE1 que duermo un ratico en s\xF3tanos? Aunque podr\xEDa tomar
-    un caf\xE9 y seguir despierto; jurar\xEDa que est\xE1 a $2.000."
+  m_text: Oh no, tenia un parcial y justo apenas ahora me levante, necesito estar
+    despierto y no se me ocurre nada mas que ir por un cafe, sera que alcanzo a ir
+    por el?
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -16763,8 +16767,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Puedes comprar en la tienda por un total de $15.000, puedes improvisar
-    con lo que tienes o puedes pedirle prestado a tus compa\xF1eros."
+  m_text: "Puedes comprar en la tienda por un total de $25.000, puedes improvisar
+    con lo que tienes o puedes pedirle algunos materiales prestados a tus compa\xF1eros."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -20223,8 +20227,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Construiste la m\xE1quina de Goldberg, pero no te fue bien.\n-7 bienestar
-    mental"
+  m_text: 'Construiste el balon voluminoso, pero no te fue bien.
+
+    -9 bienestar
+    mental'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

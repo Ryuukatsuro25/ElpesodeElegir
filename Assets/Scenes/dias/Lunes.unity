@@ -22021,6 +22021,10 @@ PrefabInstance:
       propertyPath: m_fontSizeBase
       value: 54
       objectReference: {fileID: 0}
+    - target: {fileID: 5810706494697846339, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6342388979265127298, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
       propertyPath: m_Name
       value: bus  1
