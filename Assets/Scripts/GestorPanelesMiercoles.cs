@@ -86,9 +86,12 @@ public class GestorPanelesMiercoles : MonoBehaviour
             return;
         }
 
+        // DESACTIVAR TODOS LOS PANELES, INCLUYENDO DESAYUNO Y BUS
         OcultarTodosLosPaneles();
 
+        // ACTIVAR SOLAMENTE EL PANEL DE DESTINO
         panelDestino.SetActive(true);
+
         panelActual = panelDestino;
 
         if (panelDestino == consejoMiercoles &&
@@ -148,9 +151,11 @@ public class GestorPanelesMiercoles : MonoBehaviour
 
     private void OcultarTodosLosPaneles()
     {
-        foreach (GameObject panel in ObtenerTodosLosPaneles())
+        GameObject[] paneles = ObtenerTodosLosPaneles();
+
+        foreach (GameObject panel in paneles)
         {
-            if (panel != null)
+            if (panel != null && panel.activeSelf)
             {
                 panel.SetActive(false);
             }

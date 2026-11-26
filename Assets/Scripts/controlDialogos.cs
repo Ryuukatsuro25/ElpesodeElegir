@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -14,12 +15,20 @@ public class OpcionBoton
 
     [Tooltip("Monto de la transacción. Positivo para ingreso, negativo para gasto, 0 para gratis.")]
     public int monto;
+
+    [Tooltip("Panel que se mostrará al confirmar esta opción.")]
+    public GameObject panelDestino;
 }
 
 public class controlDialogos : MonoBehaviour
 {
     [Header("Referencias de Sistemas")]
     [SerializeField] private GestorBancario gestorBancario;
+
+    [Header("Paneles que deben desactivarse")]
+    [SerializeField] private GameObject mision;
+    [SerializeField] private GameObject desayuno;
+    [SerializeField] private GameObject bus;
 
     [Header("UI Elements - Dialogs")]
     [SerializeField] private TextMeshProUGUI textDisplay;
@@ -57,8 +66,11 @@ public class controlDialogos : MonoBehaviour
             gestorBancario = FindObjectOfType<GestorBancario>();
         }
 
-        if (endPanel != null) endPanel.SetActive(false);
-        if (confirmationPanel != null) confirmationPanel.SetActive(false);
+        if (endPanel != null)
+            endPanel.SetActive(false);
+
+        if (confirmationPanel != null)
+            confirmationPanel.SetActive(false);
 
         SetActionButtonsState(false);
         SetupActionButtons();
@@ -106,8 +118,6 @@ public class controlDialogos : MonoBehaviour
     private IEnumerator EscribirTexto()
     {
         escribiendo = true;
-
-        // Esperar un frame asegura que TextMeshPro haya inicializado textInfo
         yield return null;
 
         if (textDisplay == null)
@@ -121,13 +131,17 @@ public class controlDialogos : MonoBehaviour
         bool textoRapido = PlayerPrefs.GetInt("TextoRapido", 0) == 1;
         float velocidad = textoRapido ? velocidadRapida : velocidadNormal;
 
-        int totalCaracteres = (textDisplay.textInfo != null && textDisplay.textInfo.characterCount > 0)
+        int totalCaracteres = textDisplay.textInfo.characterCount > 0
             ? textDisplay.textInfo.characterCount
             : textDisplay.text.Length;
 
         for (int i = 0; i < totalCaracteres; i++)
         {
-            if (textDisplay == null) yield break;
+            if (textDisplay == null)
+            {
+                escribiendo = false;
+                yield break;
+            }
 
             textDisplay.maxVisibleCharacters = i + 1;
             yield return new WaitForSeconds(velocidad);
@@ -146,7 +160,6 @@ public class controlDialogos : MonoBehaviour
     {
         if (textArray == null || textArray.Length == 0) return;
 
-        // Si todavía se está escribiendo, mostrar toda la frase.
         if (escribiendo)
         {
             if (escrituraCoroutine != null)
@@ -158,7 +171,8 @@ public class controlDialogos : MonoBehaviour
             if (textDisplay != null)
             {
                 textDisplay.ForceMeshUpdate();
-                int total = (textDisplay.textInfo != null && textDisplay.textInfo.characterCount > 0)
+
+                int total = textDisplay.textInfo.characterCount > 0
                     ? textDisplay.textInfo.characterCount
                     : textDisplay.text.Length;
 
@@ -169,7 +183,6 @@ public class controlDialogos : MonoBehaviour
             return;
         }
 
-        // Avanzar a la siguiente frase.
         if (currentIndex < textArray.Length - 1)
         {
             currentIndex++;
@@ -256,9 +269,25 @@ public class controlDialogos : MonoBehaviour
         }
     }
 
+    // GUARDAR ELECCION Y CAMBIAR DE PANEL
+
     public void SaveToJSONOnly()
     {
-        if (opcionSeleccionada != null && gestorBancario != null)
+        if (opcionSeleccionada == null)
+        {
+            Debug.LogWarning("No se ha seleccionado ninguna opción.");
+            return;
+        }
+
+        if (opcionSeleccionada.panelDestino == null)
+        {
+            Debug.LogWarning(
+                "No se ha asignado el panel de destino para esta opción."
+            );
+            return;
+        }
+
+        if (gestorBancario != null)
         {
             int montoAbsoluto = Mathf.Abs(opcionSeleccionada.monto);
 
@@ -279,17 +308,72 @@ public class controlDialogos : MonoBehaviour
                 );
             }
 
-            Debug.Log("Transacción guardada correctamente en JSON: "
-                + opcionSeleccionada.descripcionOp);
+            Debug.Log(
+                "Transacción guardada correctamente en JSON: "
+                + opcionSeleccionada.descripcionOp
+            );
         }
         else
         {
             Debug.LogWarning(
-                "No se pudo guardar: GestorBancario no asignado o no se seleccionó ninguna opción."
+                "GestorBancario no asignado. Se cambiará de panel sin registrar la transacción."
             );
         }
 
-        CloseConfirmationPanel();
+        GameObject destino = opcionSeleccionada.panelDestino;
+
+        // CERRAR EL PANEL DE CONFIRMACION
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(false);
+        }
+
+        // DESACTIVAR EL PANEL FINAL DEL DIALOGO
+        if (endPanel != null)
+        {
+            endPanel.SetActive(false);
+        }
+
+        // DESACTIVAR EL BOTON SIGUIENTE
+        if (nextButton != null)
+        {
+            nextButton.gameObject.SetActive(false);
+        }
+
+        // DESACTIVAR EL PANEL MISION
+        if (mision != null && mision != destino)
+        {
+            mision.SetActive(false);
+        }
+
+        // DESACTIVAR EL PANEL DESAYUNO
+        if (desayuno != null && desayuno != destino)
+        {
+            desayuno.SetActive(false);
+        }
+
+        // DESACTIVAR EL PANEL BUS
+        if (bus != null && bus != destino)
+        {
+            bus.SetActive(false);
+        }
+
+        // DESACTIVAR LOS BOTONES DE ACCION
+        if (opciones != null)
+        {
+            foreach (OpcionBoton op in opciones)
+            {
+                if (op != null && op.boton != null)
+                {
+                    op.boton.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        // ACTIVAR EL PANEL DE DESTINO
+        destino.SetActive(true);
+
+        Debug.Log("Se mostró el panel: " + destino.name);
     }
 
     private void SetActionButtonsState(bool state)

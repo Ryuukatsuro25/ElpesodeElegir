@@ -9829,9 +9829,41 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
+    - target: {fileID: 1910439248697161010, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_fontSize
+      value: 54
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_margin.w
+      value: 79.48099
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_margin.x
+      value: 123.93848
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_margin.y
+      value: 82.02104
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_margin.z
+      value: 110.835464
+      objectReference: {fileID: 0}
+    - target: {fileID: 3232204680340517253, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 54
+      objectReference: {fileID: 0}
     - target: {fileID: 6342388979265127298, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
       propertyPath: m_Name
       value: bus  1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6342388979265127298, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6489011927664989707, guid: 503126031dbbe15419aa6f95ad35ac34, type: 3}
       propertyPath: m_LocalPosition.x
